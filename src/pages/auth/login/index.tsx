@@ -30,9 +30,9 @@ const LoginPage: FunctionComponent = () => {
             <div className="flex flex-col gap-4 p-4">
               <div className="flex items-center justify-center p-4">
                 <div className="w-9/12">
-                  <Title className="text-center">
+                  <h3 className="text-center">
                     Ingresa a tu consulta en línea CEDEVAL
-                  </Title>
+                  </h3>
                 </div>
               </div>
               <form onSubmit={handleSubmit(onSubmit)}>
@@ -73,11 +73,6 @@ const LoginPage: FunctionComponent = () => {
                   </Link>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center">
-                  <Link to="/recover">
-                    <span className="cursor-pointer text-secondary-500">
-                      ¿Usuario bloqueado u olvidaste tu contraseña?
-                    </span>
-                  </Link>
                   <span className="text-neutral-500">
                     Si aún no cuentas con usuario activo, favor solicitalo aquí
                   </span>

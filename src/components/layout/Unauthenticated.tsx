@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom';
 
 const HeaderLink: FunctionComponent<LinkProps> = ({ label, link }) => {
   return (
-    <Link to={link}>
-      <span className="flex items-center justify-center">
-        <span className="p-4 text-sm font-bold text-neutral-500">{label}</span>
-      </span>
-    </Link>
+    <div className="flex items-center justify-center p-4">
+      <Link to={link}>
+        <span className="text-sm font-bold text-neutral-500">{label}</span>
+      </Link>
+    </div>
   );
 };
 
@@ -20,8 +20,8 @@ type LinkProps = {
 export const Unauthenticated: FC = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="overflow-hidden  bg-neutral-0">
-        <div className="container grid grid-cols-5 mx-auto  lg:grid-cols-2">
+      <header className="overflow-hidden bg-neutral-0">
+        <div className="container grid grid-cols-5 mx-auto lg:grid-cols-2">
           <div className="grid text-primary lg:grid-cols-4">
             <div className="flex items-center justify-center p-2">
               <Logo></Logo>
