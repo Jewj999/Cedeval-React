@@ -1,5 +1,8 @@
 import { LoginForm } from '@src/interfaces';
+import { axios } from '@src/libs';
 import qs from 'qs';
+import { useEffect } from 'react';
+import { Router, useNavigate } from 'react-router-dom';
 
 type Middleware = 'guest' | 'auth';
 
@@ -12,6 +15,7 @@ export const useAuth = ({
   middleware,
   redirectIfAuthenticated,
 }: UseAuthProps) => {
+  const navigate = useNavigate();
   // const register = async ({ setErrors, ...props }) => {
   //   setErrors([])
 
@@ -26,47 +30,31 @@ export const useAuth = ({
   // }
 
   const login = async (props: LoginForm) => {
-    fetch('http://34.134.221.255:8080/VbesAplication/oauth/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Basic Y2xpZW50ZTpwYXNzd29yZA==',
-      },
-
-      body: qs.stringify({
-        username: 'josedaniel9839@gmail.com',
-        password: '12345678',
-        grant_type: 'password',
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
+    axios
+      .post(
+        '/VbesAplication/oauth/token',
+        qs.stringify({
+          username: 'josedaniel9839@gmail.com',
+          password: '12345678',
+          grant_type: 'password',
+        }),
+        {
+          auth: {
+            username: 'cliente',
+            password: 'password',
+          },
+        }
+      )
+      .then((response) => {
+        localStorage.setItem('token', response.data.access_token);
+        navigate('/dashboard');
       })
-      .catch((err) => {
-        console.error(err);
+      .catch((error) => {
+        console.log(error);
+        // if (error.response.status !== 422) throw error
+
+        // setErrors(Object.values(error.response.data.errors).flat())
       });
-
-    // axios
-    //   .post(
-    //     '/VbesAplication/oauth/token',
-    //     qs.stringify({ ...props, grant_type: 'password' }),
-    //     {
-    //       auth: {
-    //         username: process.env.OAUTH_USER || '',
-    //         password: process.env.OAUTH_PASSWORD || '',
-    //       },
-    //     }
-    //   )
-    //   .then((response) => {
-    //     console.log(response);
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //     // if (error.response.status !== 422) throw error
-
-    //     // setErrors(Object.values(error.response.data.errors).flat())
-    //   });
   };
 
   // const forgotPassword = async ({ setErrors, setStatus, email }) => {
@@ -113,11 +101,11 @@ export const useAuth = ({
   //   window.location.pathname = '/login'
   // }
 
-  //   useEffect(() => {
-  //     if (middleware === 'guest' && redirectIfAuthenticated)
-  //       router.push(redirectIfAuthenticated)
-  //     if (middleware === 'auth' && error) logout()
-  //   }, [])
+  // useEffect(() => {
+  //   if (middleware === 'guest' && redirectIfAuthenticated)
+  //     Router.push(redirectIfAuthenticated);
+  //   if (middleware === 'auth' && error) logout();
+  // }, []);
 
   return {
     // register,
@@ -126,5 +114,5 @@ export const useAuth = ({
     // resetPassword,
     // resendEmailVerification,
     // logout,
-  }
+  };
 };

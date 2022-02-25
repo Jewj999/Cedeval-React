@@ -15,7 +15,7 @@ const sizes: Record<string, string> = {
   'extra-small': 'text-[11px]',
 }
 
-const Text: FunctionComponent<TextProps> = ({
+export const Text: FunctionComponent<TextProps> = ({
   children,
   type = 'text',
   className,
@@ -29,5 +29,3 @@ const Text: FunctionComponent<TextProps> = ({
     {children}
   </p>
 )
-
-export default Text

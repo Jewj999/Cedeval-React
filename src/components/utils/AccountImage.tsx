@@ -1,4 +1,4 @@
-const AccountImage = () => {
+export const AccountImage = () => {
   return (
     <svg
       width="33"
@@ -29,5 +29,3 @@ const AccountImage = () => {
     </svg>
   )
 }
-
-export default AccountImage

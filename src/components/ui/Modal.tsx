@@ -1,7 +1,7 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, FunctionComponent, useState } from 'react'
 
-const Modal: FunctionComponent<ModalProps> = ({
+export const Modal: FunctionComponent<ModalProps> = ({
   isOpen,
   onClose,
   children,
@@ -64,4 +64,3 @@ type ModalProps = {
   onClose: VoidFunction
   withPadding?: boolean
 }
-export default Modal

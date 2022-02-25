@@ -2,22 +2,22 @@ import { FC } from 'react';
 import { LogoWhite, AvatarContainer } from '@components';
 import { Link } from 'react-router-dom';
 
-const Authenticated: FC = ({ children }) => {
+export const Authenticated: FC = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
       <header className=" bg-primary">
         <div className="container grid grid-cols-2 mx-auto">
           {/* Logo */}
-          <div className="text-primary grid grid-cols-5">
+          <div className="grid grid-cols-5 text-primary">
             <div className="flex items-center justify-center p-2">
               <LogoWhite></LogoWhite>
             </div>
           </div>
 
           {/*  */}
-          <div className="flex gap-6 items-center justify-end">
+          <div className="flex items-center justify-end gap-6">
             <button>
-              <span className="material-icons text-neutral-0 text-2xl font-thin">
+              <span className="text-2xl font-thin material-icons text-neutral-0">
                 help_outline
               </span>
             </button>
@@ -60,5 +60,3 @@ const Authenticated: FC = ({ children }) => {
     </div>
   );
 };
-
-export default Authenticated;

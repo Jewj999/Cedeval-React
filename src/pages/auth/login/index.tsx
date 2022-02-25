@@ -8,11 +8,13 @@ import {
 } from '@src/components';
 import { useAuth } from '@src/hooks';
 import { LoginForm } from '@src/interfaces';
+import { axios } from '@src/libs';
 import { FunctionComponent } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 
 const LoginPage: FunctionComponent = () => {
+
   const { login } = useAuth({
     middleware: 'guest',
     redirectIfAuthenticated: '/dashboard',
