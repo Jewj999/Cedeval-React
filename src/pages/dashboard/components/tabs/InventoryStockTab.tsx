@@ -1,15 +1,31 @@
-import { Card, FormGroup, FormInput, Modal, Text } from '@src/components'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Card, FormGroup, FormInput, Modal, Text } from '@src/components';
+import { axios, currency, dayjs } from '@src/libs';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface FormValues {
-  search: string
+  search: string;
 }
 
 const InventoryStockTab = () => {
-  const { register, handleSubmit } = useForm<FormValues>()
-  const [isOpenModal, setIsOpenModal] = useState(false)
+  const { register, handleSubmit } = useForm<FormValues>();
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [inventories, setInventories] = useState<any[]>([]);
+  const [currentInventory, setCurrentInventory] = useState<any>({});
 
+  useEffect(() => {
+    axios
+      .post('/vbesRest/getInventory', {
+        request: {
+          msg: {
+            cte: '06',
+          },
+        },
+      })
+      .then((res) => {
+        setInventories(res.data.response.msg.cupones.content);
+      });
+  }, []);
   return (
     <Card>
       <Modal
@@ -31,7 +47,7 @@ const InventoryStockTab = () => {
                   Valor nominal
                 </Text>
                 <Text type="large" className="text-secondary-500" bold>
-                  $5,000,000.00
+                  {currency(currentInventory.valorFacial).format()}
                 </Text>
               </div>
               <div>
@@ -39,7 +55,7 @@ const InventoryStockTab = () => {
                   Precio valor del mercado
                 </Text>
                 <Text type="large" className="text-semantic-success" bold>
-                  $500.00
+                  {currency(currentInventory.valorFacial).format()}
                 </Text>
               </div>
             </div>
@@ -54,49 +70,49 @@ const InventoryStockTab = () => {
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Serie</Text>
                 <Text type="small" bold>
-                  84394
+                  {currentInventory.serie}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Número ISIN</Text>
                 <Text type="small" bold>
-                  7493933
+                  {currentInventory.vwcIdinven}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Emisión</Text>
                 <Text type="small" bold>
-                  9030304
+                  {currentInventory.emision}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Número lámina inicial</Text>
                 <Text type="small" bold>
-                  8
+                  {currentInventory.cupoD}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Número lámina final</Text>
                 <Text type="small" bold>
-                  4
+                  {currentInventory.cuponH}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Moneda</Text>
                 <Text type="small" bold>
-                  Dólar
+                  {currentInventory.moneda}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Tasa de interés</Text>
                 <Text type="small" bold>
-                  3.4%
+                  {currentInventory.tasaInteres}%
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Cantidad de acciones</Text>
                 <Text type="small" bold>
-                  4
+                  {currentInventory.cupoD}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
@@ -114,7 +130,7 @@ const InventoryStockTab = () => {
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Fecha de vencimiento</Text>
                 <Text type="small" bold>
-                  26 de diciembre 2021
+                  {dayjs(currentInventory.fvence).format('DD [de] MMMM YYYY')}
                 </Text>
               </div>
             </div>
@@ -164,23 +180,24 @@ const InventoryStockTab = () => {
         </div>
 
         <div className="flex flex-col divide-y">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
+          {inventories.map((inventory) => (
             <div
               className="grid grid-cols-2 p-3 cursor-pointer hover:bg-neutral-100"
-              key={item}
-              onClick={() => setIsOpenModal(true)}
+              key={inventory.vwcIdinven}
+              onClick={() => {
+                setIsOpenModal(true);
+                setCurrentInventory(inventory);
+              }}
             >
               <div className="flex flex-col">
                 <p className="text-sm text-neutral-600">#84393</p>
-                <p className="text-base text-neutral-500">
-                  Central de Depósito de Valores de El Salvador de Centroamérica
-                </p>
+                <p className="text-base text-neutral-500">{inventory.emisor}</p>
               </div>
               <div className="flex justify-end gap-2">
                 <div className="flex flex-col justify-center">
                   <p className="text-xs text-neutral-600">Valor nominal</p>
                   <p className="text-lg font-bold text-secondary-500">
-                    $5,000,000,000.00
+                    {currency(inventory.valorFacial).format()}
                   </p>
                 </div>
                 <div className="flex items-center justify-center">
@@ -224,7 +241,7 @@ const InventoryStockTab = () => {
         </div>
       </div>
     </Card>
-  )
-}
+  );
+};
 
-export default InventoryStockTab
+export default InventoryStockTab;

@@ -1,15 +1,17 @@
-import { Card, FormGroup, FormInput, Modal, Text } from '@src/components'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Card, FormGroup, FormInput, Modal, Text } from '@src/components';
+import { axios } from '@src/libs';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface FormValues {
-  search: string
+  search: string;
 }
 
 const ValuesInventoryTab = () => {
-  const { register, handleSubmit } = useForm<FormValues>()
-  const [isOpenModal, setIsOpenModal] = useState(false)
+  const { register, handleSubmit } = useForm<FormValues>();
+  const [isOpenModal, setIsOpenModal] = useState(false);
 
+  
   return (
     <Card>
       <Modal
@@ -178,7 +180,7 @@ const ValuesInventoryTab = () => {
         </div>
       </div>
     </Card>
-  )
-}
+  );
+};
 
-export default ValuesInventoryTab
+export default ValuesInventoryTab;
