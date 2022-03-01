@@ -88,10 +88,10 @@ const BeneficiarySection: FC<{ account: any }> = ({ account }) => {
             Consulta al: 19 de abril de 2021
           </p>
         </div>
-        {beneficiaries.map((beneficiary) => (
+        {beneficiaries.map((beneficiary, index) => (
           <div
             className="flex p-3 cursor-pointer"
-            key={beneficiary.noIdent}
+            key={beneficiary.noIdent + index}
             onClick={() => {
               setIsOpenModal(true);
               setCurrentBeneficiary(beneficiary);
