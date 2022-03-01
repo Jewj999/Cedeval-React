@@ -1,8 +1,14 @@
 import { FC } from 'react';
 import { LogoWhite, AvatarContainer } from '@components';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@src/hooks';
 
 export const Authenticated: FC = ({ children }) => {
+  const { user } = useAuth({
+    middleware: 'auth',
+    redirectIfAuthenticated: 'dashboard',
+  });
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className=" bg-primary">
@@ -21,7 +27,10 @@ export const Authenticated: FC = ({ children }) => {
                 help_outline
               </span>
             </button>
-            <AvatarContainer type="text" value="A"></AvatarContainer>
+            <AvatarContainer
+              type="text"
+              value={user?.usuario.bvsNombre[0].toUpperCase() || ''}
+            ></AvatarContainer>
             {/* <HeaderLink link="#" label={t('house_brokers')}></HeaderLink> */}
           </div>
         </div>

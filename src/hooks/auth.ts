@@ -1,8 +1,9 @@
-import { LoginForm } from '@src/interfaces';
+import { GetInformationLogin, LoginForm } from '@src/interfaces';
 import { axios } from '@src/libs';
 import qs from 'qs';
-import { useEffect } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import { Router, useNavigate } from 'react-router-dom';
+import useSWR from 'swr';
 
 type Middleware = 'guest' | 'auth';
 
@@ -16,6 +17,30 @@ export const useAuth = ({
   redirectIfAuthenticated,
 }: UseAuthProps) => {
   const navigate = useNavigate();
+  const validateUserInfo = async (url: string) => {
+    const {
+      data: { response },
+    } = await axios.post<GetInformationLogin>(url, {
+      request: {
+        msg: {
+          mail: localStorage.getItem('email'),
+          typeSession: 'Web',
+        },
+      },
+    });
+
+    if (response.errorCode !== '0' && response.errorCode !== '7') {
+      throw new Error(response.errorMessage);
+    } else {
+      return response.msg;
+    }
+  };
+  const {
+    data: user,
+    error,
+    mutate,
+  } = useSWR('/vbesRest/getInformationLogin', validateUserInfo);
+
   // const register = async ({ setErrors, ...props }) => {
   //   setErrors([])
 
@@ -29,13 +54,13 @@ export const useAuth = ({
   //     })
   // }
 
-  const login = async (props: LoginForm) => {
+  const login = async ({ username, password }: LoginForm) => {
     axios
       .post(
         '/VbesAplication/oauth/token',
         qs.stringify({
-          username: 'josedaniel9839@gmail.com',
-          password: '12345678',
+          username,
+          password,
           grant_type: 'password',
         }),
         {
@@ -47,6 +72,10 @@ export const useAuth = ({
       )
       .then((response) => {
         localStorage.setItem('token', response.data.access_token);
+        localStorage.setItem('email', username);
+        axios.defaults.headers.common[
+          'Authorization'
+        ] = `Bearer ${response.data.access_token}`;
         navigate('/dashboard');
       })
       .catch((error) => {
@@ -93,26 +122,27 @@ export const useAuth = ({
   //     .then((response) => setStatus(response.data.status))
   // }
 
-  // const logout = async () => {
-  //   if (!error) {
-  //     await axios.post('/logout')
-  //   }
+  const logout = async () => {
+    if (!error) {
+      await axios.put('/vbesRest/logoutSession');
+    }
 
-  //   window.location.pathname = '/login'
-  // }
+    window.location.pathname = '/login';
+  };
 
-  // useEffect(() => {
-  //   if (middleware === 'guest' && redirectIfAuthenticated)
-  //     Router.push(redirectIfAuthenticated);
-  //   if (middleware === 'auth' && error) logout();
-  // }, []);
+  useEffect(() => {
+    if (middleware === 'guest' && redirectIfAuthenticated && user)
+      navigate(redirectIfAuthenticated);
+    if (middleware === 'auth' && error) logout();
+  }, [user, error]);
 
   return {
+    user,
     // register,
     login,
     // forgotPassword,
     // resetPassword,
     // resendEmailVerification,
-    // logout,
+    logout,
   };
 };
