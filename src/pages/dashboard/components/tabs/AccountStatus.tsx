@@ -20,9 +20,9 @@ const AccountStatusTab: FC<{ account: any }> = ({ account }) => {
       .post('/vbesRest/getAccountSummary', {
         request: {
           msg: {
-            cte: account.cte,
-            cta: account.cta,
-            tcta: account.tcta,
+            cte: '01',
+            cta: '0',
+            tcta: '01',
           },
         },
       })

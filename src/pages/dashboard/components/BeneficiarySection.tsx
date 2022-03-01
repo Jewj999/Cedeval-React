@@ -1,9 +1,32 @@
+import { Card, Modal, Text } from '@src/components';
+import { axios } from '@src/libs';
+import { FC, FunctionComponent, useEffect, useState } from 'react';
 
-import { Card, Modal, Text } from '@src/components'
-import { FunctionComponent, useState } from 'react'
+const BeneficiarySection: FC<{ account: any }> = ({ account }) => {
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [beneficiaries, setBeneficiaries] = useState<any[]>([]);
+  const [isEmpty, setIsEmpty] = useState(false);
+  const [currentBeneficiary, setCurrentBeneficiary] = useState<any>({});
 
-const BeneficiarySection: FunctionComponent<{}> = () => {
-  const [isOpenModal, setIsOpenModal] = useState(false)
+  useEffect(() => {
+    axios
+      .post('/vbesRest/getBeneficiaries', {
+        request: {
+          msg: {
+            cte: '07',
+            cta: '982',
+            tcta: '03',
+          },
+        },
+      })
+      .then((res) => {
+        if (res.data.response.errorCode !== '0') {
+          setIsEmpty(true);
+        } else {
+          setBeneficiaries(res.data.response.msg.beneficiarios.content);
+        }
+      });
+  }, [account]);
 
   return (
     <Card>
@@ -21,9 +44,9 @@ const BeneficiarySection: FunctionComponent<{}> = () => {
             </div>
 
             <div className="px-6 py-4 bg-secondary-500 text-neutral-0">
-              <Text type="small">Titular de cuenta</Text>
+              <Text type="small">{currentBeneficiary.represen}</Text>
               <Text type="large" bold>
-                Juan Carlos Landaverde Pineda
+                {currentBeneficiary.nombre}
               </Text>
             </div>
 
@@ -31,26 +54,25 @@ const BeneficiarySection: FunctionComponent<{}> = () => {
               <div className="px-6 py-4">
                 <Text type="extra-small">Tipo de documento</Text>
                 <Text type="small" bold>
-                  Documento Único de Identidad
+                  {currentBeneficiary.nombreDoc}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="extra-small">Número de identidad</Text>
                 <Text type="small" bold>
-                  73939373-9
+                  {currentBeneficiary.noIdent}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="extra-small">Teléfono de contacto</Text>
                 <Text type="small" bold>
-                  7839-3839
+                  {currentBeneficiary.telefono}
                 </Text>
               </div>
               <div className="px-6 py-4">
                 <Text type="extra-small">Dirección residencial</Text>
                 <Text type="small" bold>
-                  Calle San Martí, #30, Colonia Escalón, San Salvador, El
-                  Salvador
+                  {currentBeneficiary.direccion}
                 </Text>
               </div>
             </div>
@@ -66,17 +88,18 @@ const BeneficiarySection: FunctionComponent<{}> = () => {
             Consulta al: 19 de abril de 2021
           </p>
         </div>
-        {[1, 2, 3, 4].map((number) => (
+        {beneficiaries.map((beneficiary) => (
           <div
             className="flex p-3 cursor-pointer"
-            key={number}
-            onClick={() => setIsOpenModal(true)}
+            key={beneficiary.noIdent}
+            onClick={() => {
+              setIsOpenModal(true);
+              setCurrentBeneficiary(beneficiary);
+            }}
           >
             <div className="flex-auto ">
-              <p className="text-sm text-neutral-500">
-                Juan Carlos Landaverde Pineda
-              </p>
-              <p className="text-xs text-neutral-600">Titular de la cuenta</p>
+              <p className="text-sm text-neutral-500">{beneficiary.nombre}</p>
+              <p className="text-xs text-neutral-600">{beneficiary.represen}</p>
             </div>
             <div className="flex items-center justify-center">
               <button className="flex">
@@ -91,7 +114,7 @@ const BeneficiarySection: FunctionComponent<{}> = () => {
         ))}
       </div>
     </Card>
-  )
-}
+  );
+};
 
-export default BeneficiarySection
+export default BeneficiarySection;
