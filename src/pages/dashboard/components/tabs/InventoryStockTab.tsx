@@ -1,13 +1,13 @@
 import { Card, FormGroup, FormInput, Modal, Text } from '@src/components';
 import { axios, currency, dayjs } from '@src/libs';
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface FormValues {
   search: string;
 }
 
-const InventoryStockTab = () => {
+const InventoryStockTab: FC<{ account: any }> = () => {
   const { register, handleSubmit } = useForm<FormValues>();
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [inventories, setInventories] = useState<any[]>([]);

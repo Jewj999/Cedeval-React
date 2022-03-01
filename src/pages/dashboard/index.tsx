@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { createContext, FC, useEffect, useState } from 'react';
 import { Tab } from '@headlessui/react';
 import { Authenticated } from '@src/components';
 import ValuesInventoryTab from './components/tabs/ValuesInventoryTab';
@@ -13,7 +13,8 @@ function classNames(...classes: any) {
 }
 
 const DashboardPage: FC = () => {
-  
+  const [actualAccount, setActualAccount] = useState<any>({});
+
   const [tabMenu] = useState([
     {
       title: 'Inventario de valores',
@@ -73,26 +74,34 @@ const DashboardPage: FC = () => {
                 {/* Content */}
                 <Tab.Panels className="">
                   <Tab.Panel>
-                    <ValuesInventoryTab></ValuesInventoryTab>
+                    <ValuesInventoryTab
+                      account={actualAccount}
+                    ></ValuesInventoryTab>
                   </Tab.Panel>
 
                   <Tab.Panel>
-                    <AccountStatusTab></AccountStatusTab>
+                    <AccountStatusTab
+                      account={actualAccount}
+                    ></AccountStatusTab>
                   </Tab.Panel>
 
                   <Tab.Panel>
-                    <CuponExpirationTab></CuponExpirationTab>
+                    <CuponExpirationTab
+                      account={actualAccount}
+                    ></CuponExpirationTab>
                   </Tab.Panel>
 
                   <Tab.Panel>
-                    <InventoryStockTab></InventoryStockTab>
+                    <InventoryStockTab
+                      account={actualAccount}
+                    ></InventoryStockTab>
                   </Tab.Panel>
                 </Tab.Panels>
               </div>
             </Tab.Group>
           </div>
           {/* Sidebar right */}
-          <Sidebar></Sidebar>
+          <Sidebar account={{ actualAccount, setActualAccount }}></Sidebar>
         </div>
       </div>
     </Authenticated>

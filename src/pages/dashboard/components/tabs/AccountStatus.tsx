@@ -1,31 +1,39 @@
 import { Card, FormGroup, FormInput, Modal, Text } from '@src/components';
+import { EmptyState } from '@src/components/ui/EmptyState';
+import AccountContext from '@src/context/AccountContext';
+import { useAccount } from '@src/hooks/account';
 import { axios, currency, dayjs } from '@src/libs';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FC, FunctionComponent, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface FormValues {
   search: string;
 }
-const AccountStatusTab: FunctionComponent<{}> = () => {
+const AccountStatusTab: FC<{ account: any }> = ({ account }) => {
   const { register, handleSubmit } = useForm<FormValues>();
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [currentTransaction, setCurrentTransaction] = useState<any>({});
+  const [isEmpty, setIsEmpty] = useState(false);
   useEffect(() => {
     axios
       .post('/vbesRest/getAccountSummary', {
         request: {
           msg: {
-            cte: '01',
-            cta: '0',
-            tcta: '01',
+            cte: account.cte,
+            cta: account.cta,
+            tcta: account.tcta,
           },
         },
       })
       .then((res) => {
-        setTransactions(res.data.response.msg.cuentas.content);
+        if (res.data.response.errorCode !== '0') {
+          setIsEmpty(true);
+        } else {
+          setTransactions(res.data.response.msg.cuentas.content);
+        }
       });
-  }, []);
+  }, [account]);
 
   return (
     <Card>
@@ -139,64 +147,70 @@ const AccountStatusTab: FunctionComponent<{}> = () => {
         </div>
 
         <div className="flex flex-col divide-y">
-          {transactions.map((transaction) => (
-            <div
-              className="grid grid-cols-3 p-3 cursor-pointer hover:bg-neutral-100"
-              key={`${transaction.titulo}-${transaction.folio}`}
-              onClick={() => {
-                setCurrentTransaction(transaction);
-                setIsOpenModal(true);
-              }}
-            >
-              <div className="flex gap-6">
-                <div className="flex items-center justify-center mb-1">
-                  {transaction.operacion === 'Deposito' ? (
-                    <span className="w-5 h-5 material-icons text-semantic-success">
-                      north_east
-                    </span>
-                  ) : (
-                    <span className="w-5 h-5 material-icons text-semantic-error">
-                      south_west
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  <p className="text-base text-neutral-500">
-                    {transaction.operacion === 'Deposito'
-                      ? 'Depósito'
-                      : 'Retiro'}
-                  </p>
-                  <p className="text-sm text-neutral-500">
-                    {dayjs(transaction.fecha).format('DD [de] MMMM YYYY')}
-                  </p>
-                </div>
-              </div>
-              <div className="flex justify-end col-start-3 gap-10">
-                <div className="flex flex-col justify-center">
-                  <p className="text-sm text-neutral-600">Valor nominal</p>
-                  <p
-                    className={`text-lg font-bold ${
-                      transaction.operacion === 'Deposito'
-                        ? 'text-semantic-success'
-                        : 'text-semantic-error'
-                    }`}
-                  >
-                    {currency(transaction.monto).format()}
-                  </p>
-                </div>
-                <div className="flex items-center justify-center">
-                  <button className="flex">
-                    <div className="flex items-center justify-center">
-                      <span className="w-5 h-5 material-icons text-neutral-500">
-                        chevron_right
-                      </span>
-                    </div>
-                  </button>
-                </div>
-              </div>
+          {isEmpty && (
+            <div className="flex justify-center w-full">
+              <EmptyState />
             </div>
-          ))}
+          )}
+          {!isEmpty &&
+            transactions.map((transaction) => (
+              <div
+                className="grid grid-cols-3 p-3 cursor-pointer hover:bg-neutral-100"
+                key={`${transaction.titulo}-${transaction.folio}`}
+                onClick={() => {
+                  setCurrentTransaction(transaction);
+                  setIsOpenModal(true);
+                }}
+              >
+                <div className="flex gap-6">
+                  <div className="flex items-center justify-center mb-1">
+                    {transaction.operacion === 'Deposito' ? (
+                      <span className="w-5 h-5 material-icons text-semantic-success">
+                        north_east
+                      </span>
+                    ) : (
+                      <span className="w-5 h-5 material-icons text-semantic-error">
+                        south_west
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="text-base text-neutral-500">
+                      {transaction.operacion === 'Deposito'
+                        ? 'Depósito'
+                        : 'Retiro'}
+                    </p>
+                    <p className="text-sm text-neutral-500">
+                      {dayjs(transaction.fecha).format('DD [de] MMMM YYYY')}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex justify-end col-start-3 gap-10">
+                  <div className="flex flex-col justify-center">
+                    <p className="text-sm text-neutral-600">Valor nominal</p>
+                    <p
+                      className={`text-lg font-bold ${
+                        transaction.operacion === 'Deposito'
+                          ? 'text-semantic-success'
+                          : 'text-semantic-error'
+                      }`}
+                    >
+                      {currency(transaction.monto).format()}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <button className="flex">
+                      <div className="flex items-center justify-center">
+                        <span className="w-5 h-5 material-icons text-neutral-500">
+                          chevron_right
+                        </span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
 
           <div className="flex items-center justify-center gap-4 pt-6">
             {[1, 2, 3, 4, 5].map((item) => (

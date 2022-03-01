@@ -1,17 +1,16 @@
 import { Card, FormGroup, FormInput, Modal, Text } from '@src/components';
 import { axios } from '@src/libs';
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface FormValues {
   search: string;
 }
 
-const ValuesInventoryTab = () => {
+const ValuesInventoryTab: FC<{ account: any }> = () => {
   const { register, handleSubmit } = useForm<FormValues>();
   const [isOpenModal, setIsOpenModal] = useState(false);
 
-  
   return (
     <Card>
       <Modal
