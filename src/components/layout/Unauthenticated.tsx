@@ -4,11 +4,12 @@ import { Link } from 'react-router-dom';
 
 const HeaderLink: FunctionComponent<LinkProps> = ({ label, link }) => {
   return (
-    <div className="flex items-center justify-center p-4">
-      <Link to={link}>
-        <span className="text-sm font-bold text-neutral-500">{label}</span>
-      </Link>
-    </div>
+    <Link
+      to={link}
+      className="flex items-center justify-center p-4 hover:bg-neutral-100"
+    >
+      <span className="text-sm font-bold text-neutral-500">{label}</span>
+    </Link>
   );
 };
 
@@ -27,12 +28,7 @@ export const Unauthenticated: FC = ({ children }) => {
               <Logo></Logo>
             </div>
           </div>
-          <div className="flex col-span-4 lg:gap-6 lg:col-span-1">
-            <HeaderLink link="#" label="Enlaces"></HeaderLink>
-            <HeaderLink
-              link="#"
-              label="Casas de corredores de bolsa"
-            ></HeaderLink>
+          <div className="flex justify-end col-span-4 lg:gap-6 lg:col-span-1">
             <HeaderLink link="#" label="Preguntas frecuentes"></HeaderLink>
           </div>
         </div>

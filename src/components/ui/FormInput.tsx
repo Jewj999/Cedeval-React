@@ -57,4 +57,6 @@ type InputProps = ReturnType<UseFormRegister<any>> & {
   placeholder?: string;
   disabled?: boolean;
   centered?: boolean;
+  mask?: string;
+  masked?: boolean;
 };

@@ -1,4 +1,4 @@
-import { GetInformationLogin, LoginForm } from '@src/interfaces';
+import { GetInformationLogin, LoginForm, RegisterForm } from '@src/interfaces';
 import { axios } from '@src/libs';
 import qs from 'qs';
 import { createContext, useContext, useEffect } from 'react';
@@ -41,18 +41,28 @@ export const useAuth = ({
     mutate,
   } = useSWR('/vbesRest/getInformationLogin', validateUserInfo);
 
-  // const register = async ({ setErrors, ...props }) => {
-  //   setErrors([])
-
-  //   axios
-  //     .post('/register', props)
-  //     .then(() => {})
-  //     .catch((error) => {
-  //       if (error.response.status !== 422) throw error
-
-  //       setErrors(Object.values(error.response.data.errors).flat())
-  //     })
-  // }
+  const register = async ({
+    email,
+    document_type,
+    document_value,
+  }: RegisterForm) => {
+    axios
+      .post('/vbsRegister/registerUser', {
+        request: {
+          msg: {
+            email,
+            tipoDoc: document_type,
+            numDoc: document_value,
+          },
+        },
+      })
+      .then(() => {
+        navigate('/signup/successful');
+      })
+      .catch((error) => {
+        if (error.response.status !== 422) throw error;
+      });
+  };
 
   const login = async ({ username, password }: LoginForm) => {
     axios
@@ -138,7 +148,7 @@ export const useAuth = ({
 
   return {
     user,
-    // register,
+    register,
     login,
     // forgotPassword,
     // resetPassword,
