@@ -4,9 +4,9 @@ import {
   Card,
   FormGroup,
   FormInput,
+  FormSelect,
   Unauthenticated,
 } from '@src/components';
-import FormSelect from '@src/components/ui/FormSelect';
 import { useAuth } from '@src/hooks';
 import { RegisterForm } from '@src/interfaces';
 import { FC } from 'react';

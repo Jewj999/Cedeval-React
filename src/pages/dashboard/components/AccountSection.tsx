@@ -1,4 +1,4 @@
-import { Menu, Transition } from '@headlessui/react';
+import { Menu, Popover, Transition } from '@headlessui/react';
 import { AccountImage, Card } from '@src/components';
 import Icon from '@src/components/ui/Icon';
 import AccountContext from '@src/context/AccountContext';
@@ -31,13 +31,83 @@ const AccountBodyItem: FunctionComponent<AccountBodyItemProps> = ({
 
 const AccountSection: FunctionComponent<{ account: any }> = ({ account }) => {
   const { user } = useAuth({});
+  const [houses, setHouses] = useState<Record<string, any>>({});
   useEffect(() => {
+    const parsedHouses = user?.casas.reduce((r: any, a) => {
+      r[`${a.tmvNomcor}`] = [...(r[`${a.tmvNomcor}`] || []), a];
+      return r;
+    }, {});
+
+    setHouses(parsedHouses);
     account.setActualAccount(user?.casas[0]);
   }, [user]);
 
+  // const groupBy = function (xs, key) {
+  //   return xs.reduce(function (rv, x) {
+  //     (rv[x[key]] = rv[x[key]] || []).push(x);
+  //     return rv;
+  //   }, {});
+  // };
   return (
     <AccountContext.Provider value={account.actualAccount}>
       <Card>
+        <Popover className="relative">
+          {({ open }) => (
+            <>
+              <Popover.Button
+                className={`
+                ${open ? '' : 'text-opacity-90'}
+                text-white group bg-orange-700 px-3 py-2 rounded-md inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}
+              >
+                <span>Solutions</span>
+                <Icon
+                  className={`${open ? '' : 'text-opacity-70'}
+                  ml-2 h-5 w-5 text-orange-300 group-hover:text-opacity-80 transition ease-in-out duration-150`}
+                  aria-hidden="true"
+                >
+                  chevron_down
+                </Icon>
+              </Popover.Button>
+              <Transition
+                as={Fragment}
+                enter="transition ease-out duration-200"
+                enterFrom="opacity-0 translate-y-1"
+                enterTo="opacity-100 translate-y-0"
+                leave="transition ease-in duration-150"
+                leaveFrom="opacity-100 translate-y-0"
+                leaveTo="opacity-0 translate-y-1"
+              >
+                <Popover.Panel className="absolute top-0 z-10 w-64 transform -translate-x-1/2 -left-32 sm:px-0">
+                  <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
+                    <div className="relative grid gap-8 bg-white p-7 lg:grid-cols-2">
+                      {[{ href: '', name: '', description: '' }].map(
+                        (item, index) => (
+                          <a
+                            key={index}
+                            href={item.href}
+                            className="flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
+                          >
+                            {/* <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 text-white sm:h-12 sm:w-12">
+                                            <item.icon aria-hidden="true" />
+                                          </div> */}
+                            <div className="ml-4">
+                              <p className="text-sm font-medium text-gray-900">
+                                {item.name}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {item.description}
+                              </p>
+                            </div>
+                          </a>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </Popover.Panel>
+              </Transition>
+            </>
+          )}
+        </Popover>
         <div className="flex flex-col -m-3 divide-y">
           <Menu as="div" className="relative inline-block text-left">
             <Menu.Button className="w-full p-4 text-sm font-medium rounded-md bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
@@ -76,19 +146,63 @@ const AccountSection: FunctionComponent<{ account: any }> = ({ account }) => {
             >
               <Menu.Items className="absolute right-0 w-full mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <div className="px-1 py-1 ">
-                  {user?.casas.map((casa) => (
-                    <Menu.Item key={casa.tmvNomcor}>
+                  {Object.keys(houses || {}).map((casa) => (
+                    <Menu.Item key={casa} disabled>
                       {({ active }) => (
-                        <button
-                          onClick={() => account.setActualAccount(casa)}
-                          className={`${
-                            active
-                              ? 'bg-violet-500 text-white'
-                              : 'text-gray-900'
-                          } group flex rounded-md items-center w-full p-4 text-sm`}
-                        >
-                          {casa?.tmvNomcor}
-                        </button>
+                        <Popover className="relative">
+                          {({ open }) => (
+                            <>
+                              <Popover.Button
+                                className={`${
+                                  active
+                                    ? 'bg-violet-500 text-white'
+                                    : 'text-gray-900'
+                                } group flex rounded-md items-center w-full p-4 text-sm`}
+                              >
+                                <span>{casa}</span>
+                                <Icon
+                                  className={`${open ? '' : 'text-opacity-70'}
+                                ml-2 h-5 w-5 text-orange-300 group-hover:text-opacity-80 transition ease-in-out duration-150`}
+                                  aria-hidden="true"
+                                >
+                                  chevron_down
+                                </Icon>
+                              </Popover.Button>
+                              <Transition
+                                as={Fragment}
+                                enter="transition ease-out duration-200"
+                                enterFrom="opacity-0 translate-y-1"
+                                enterTo="opacity-100 translate-y-0"
+                                leave="transition ease-in duration-150"
+                                leaveFrom="opacity-100 translate-y-0"
+                                leaveTo="opacity-0 translate-y-1"
+                              >
+                                <Popover.Panel className="absolute top-0 z-10 w-64 transform -translate-x-1/2 -left-32 sm:px-0">
+                                  <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
+                                    <div className="relative flex gap-2 bg-white p-7">
+                                      {houses[casa].map(
+                                        (item: any, index: any) => (
+                                          <button
+                                            key={index}
+                                            className="flex items-center w-full p-2 transition duration-150 ease-in-out rounded-lg hover:bg-secondary-500 hover:text-white focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
+                                          >
+                                            {/* <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 text-white sm:h-12 sm:w-12">
+                                                          <item.icon aria-hidden="true" />
+                                                        </div> */}
+                                            <p className="text-sm font-medium">
+                                              {item.cte}-{item.tcta}
+                                              {item.cta}
+                                            </p>
+                                          </button>
+                                        )
+                                      )}
+                                    </div>
+                                  </div>
+                                </Popover.Panel>
+                              </Transition>
+                            </>
+                          )}
+                        </Popover>
                       )}
                     </Menu.Item>
                   ))}

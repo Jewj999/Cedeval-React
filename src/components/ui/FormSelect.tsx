@@ -21,7 +21,7 @@ const people = [
   { name: 'Hellen Schmidt' },
 ];
 
-const FormSelect = (props: InputProps & UseControllerProps<any>) => {
+export const FormSelect = (props: InputProps & UseControllerProps<any>) => {
   const {
     field: { onChange },
   } = useController(props);
@@ -93,5 +93,3 @@ const FormSelect = (props: InputProps & UseControllerProps<any>) => {
     </Listbox>
   );
 };
-
-export default FormSelect;

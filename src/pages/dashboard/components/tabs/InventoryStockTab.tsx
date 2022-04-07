@@ -8,7 +8,7 @@ interface FormValues {
 }
 
 const InventoryStockTab: FC<{ account: any }> = () => {
-  const { register, handleSubmit } = useForm<FormValues>();
+  const { register } = useForm<FormValues>();
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [inventories, setInventories] = useState<any[]>([]);
   const [currentInventory, setCurrentInventory] = useState<any>({});
@@ -18,14 +18,15 @@ const InventoryStockTab: FC<{ account: any }> = () => {
       .post('/vbesRest/getInventory', {
         request: {
           msg: {
-            cte: '06',
+            cte: '07',
           },
         },
       })
       .then((res) => {
-        setInventories(res.data.response.msg.cupones.content);
+        setInventories(res.data.response.msg.inventoryList);
       });
   }, []);
+
   return (
     <Card>
       <Modal
@@ -55,7 +56,7 @@ const InventoryStockTab: FC<{ account: any }> = () => {
                   Precio valor del mercado
                 </Text>
                 <Text type="large" className="text-semantic-success" bold>
-                  {currency(currentInventory.valorFacial).format()}
+                  {currency(currentInventory.valMercdo).format()}
                 </Text>
               </div>
             </div>
@@ -76,7 +77,7 @@ const InventoryStockTab: FC<{ account: any }> = () => {
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Número ISIN</Text>
                 <Text type="small" bold>
-                  {currentInventory.vwcIdinven}
+                  {currentInventory.isin}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
@@ -88,19 +89,19 @@ const InventoryStockTab: FC<{ account: any }> = () => {
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Número lámina inicial</Text>
                 <Text type="small" bold>
-                  {currentInventory.cupoD}
+                  {currentInventory.laminaInicial}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Número lámina final</Text>
                 <Text type="small" bold>
-                  {currentInventory.cuponH}
+                  {currentInventory.laminaFinal}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Moneda</Text>
                 <Text type="small" bold>
-                  {currentInventory.moneda}
+                  {currentInventory.nomMoneda}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
@@ -112,19 +113,19 @@ const InventoryStockTab: FC<{ account: any }> = () => {
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Cantidad de acciones</Text>
                 <Text type="small" bold>
-                  {currentInventory.cupoD}
+                  {currentInventory.cantAcciones}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Precio acción</Text>
                 <Text type="small" bold>
-                  $500.00
+                  {currency(currentInventory.precioAccion).format()}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Equivalente en dólares</Text>
                 <Text type="small" bold>
-                  $5,000.00
+                  {currency(currentInventory.equivalente).format()}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">

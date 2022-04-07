@@ -47,7 +47,7 @@ const CuponExpirationTab: FC<{ account: any }> = () => {
                   Valor nominal
                 </Text>
                 <Text type="large" className="text-secondary-500" bold>
-                  {currentCoupon.valorFacial}
+                  {currency(currentCoupon.valorFacial).format()}
                 </Text>
               </div>
               <div>
@@ -55,7 +55,7 @@ const CuponExpirationTab: FC<{ account: any }> = () => {
                   Precio valor del mercado
                 </Text>
                 <Text type="large" className="text-semantic-success" bold>
-                  {currentCoupon.valorFacial}
+                  {currency(currentCoupon.valMercdo).format()}
                 </Text>
               </div>
             </div>
@@ -76,7 +76,7 @@ const CuponExpirationTab: FC<{ account: any }> = () => {
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Moneda</Text>
                 <Text type="small" bold>
-                  {currentCoupon.moneda}
+                  {currentCoupon.nomMoneda}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">

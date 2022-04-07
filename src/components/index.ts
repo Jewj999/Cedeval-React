@@ -7,6 +7,7 @@ export * from './ui/AvatarContainer';
 export * from './ui/Card';
 export * from './ui/FormGroup';
 export * from './ui/FormInput';
+export * from './ui/FormSelect';
 export * from './ui/Button';
 export * from './ui/Modal';
 
