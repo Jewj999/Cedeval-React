@@ -1,7 +1,18 @@
-import { GetInformationLogin, LoginForm, RegisterForm } from '@src/interfaces';
+import {
+  GetInformationLogin,
+  LoginForm,
+  RegisterForm,
+  Response,
+} from '@src/interfaces';
 import { axios } from '@src/libs';
 import qs from 'qs';
-import { createContext, useContext, useEffect } from 'react';
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+} from 'react';
 import { Router, useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 
@@ -10,13 +21,16 @@ type Middleware = 'guest' | 'auth';
 type UseAuthProps = {
   middleware?: Middleware;
   redirectIfAuthenticated?: string;
+  setError: Dispatch<SetStateAction<string>>;
 };
 
 export const useAuth = ({
   middleware,
   redirectIfAuthenticated,
+  setError,
 }: UseAuthProps) => {
   const navigate = useNavigate();
+
   const validateUserInfo = async (url: string) => {
     const {
       data: { response },
@@ -30,16 +44,23 @@ export const useAuth = ({
     });
 
     if (response.errorCode !== '0' && response.errorCode !== '7') {
+      setError(response.errorMessage ?? '');
       throw new Error(response.errorMessage);
     } else {
       return response.msg;
     }
   };
+
   const {
     data: user,
     error,
     mutate,
-  } = useSWR('/vbesRest/getInformationLogin', validateUserInfo);
+  } = useSWR('/vbesRest/getInformationLogin', validateUserInfo, {
+    shouldRetryOnError: false,
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
 
   const register = async ({
     email,
@@ -80,51 +101,82 @@ export const useAuth = ({
           },
         }
       )
-      .then((response) => {
+      .then(async (response) => {
         localStorage.setItem('token', response.data.access_token);
         localStorage.setItem('email', username);
         axios.defaults.headers.common[
           'Authorization'
         ] = `Bearer ${response.data.access_token}`;
-        navigate('/dashboard');
-      })
-      .catch((error) => {
-        console.log(error);
-        // if (error.response.status !== 422) throw error
-
-        // setErrors(Object.values(error.response.data.errors).flat())
+        try {
+          await validateUserInfo('/vbesRest/getInformationLogin');
+        } catch (err: any) {
+          setError(err.message);
+        }
       });
   };
 
-  // const forgotPassword = async ({ setErrors, setStatus, email }) => {
-  //   setErrors([])
-  //   setStatus(null)
+  const forgotPasswordValidateUser = async ({
+    email = '',
+    document_type = '',
+    document_value = '',
+  }) => {
+    const { data: response } = await axios.post<Response<any>>(
+      '/vbesRest/validateUser',
+      {
+        request: {
+          msg: {
+            correo: email,
+            tipoDoc: document_type,
+            numDoc: document_value,
+          },
+        },
+      }
+    );
 
-  //   axios
-  //     .post('/forgot-password', { email })
-  //     .then((response) => setStatus(response.data.status))
-  //     .catch((error) => {
-  //       if (error.response.status !== 422) throw error
+    if (response.errorCode !== '0') {
+      setError(response.errorMessage ?? '');
+      throw new Error(response.errorMessage);
+    } else {
+      navigate('/password-reset?email=' + email);
+    }
+  };
 
-  //       setErrors(Object.values(error.response.data.errors).flat())
-  //     })
-  // }
+  const resetPassword = async ({
+    email,
+    password,
+    setStatus,
+  }: {
+    email: string;
+    password: string;
+    setStatus: Dispatch<SetStateAction<boolean>>;
+  }) => {
+    setError('');
 
-  // const resetPassword = async ({ setErrors, setStatus, ...props }) => {
-  //   setErrors([])
-  //   setStatus(null)
-
-  //   axios
-  //     .post('/reset-password', { token: router.query.token, ...props })
-  //     .then((response) =>
-  //       router.push('/login?reset=' + btoa(response.data.status))
-  //     )
-  //     .catch((error) => {
-  //       if (error.response.status != 422) throw error
-
-  //       setErrors(Object.values(error.response.data.errors).flat())
-  //     })
-  // }
+    axios
+      .post<Response<any>>('/vbesRest/changePassword', {
+        request: {
+          msg: {
+            email,
+            password,
+            idTipoCambio: 4,
+          },
+        },
+      })
+      .then(({ data: response }) => {
+        if (response.errorCode !== '0') {
+          setError(response.errorMessage ?? '');
+          throw new Error(response.errorMessage);
+        } else {
+          setStatus(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2500);
+        }
+      })
+      .catch((err: any) => {
+        setError(err.message);
+      });
+  };
 
   // const resendEmailVerification = ({ setStatus }) => {
   //   axios
@@ -150,8 +202,9 @@ export const useAuth = ({
     user,
     register,
     login,
+    forgotPasswordValidateUser,
     // forgotPassword,
-    // resetPassword,
+    resetPassword,
     // resendEmailVerification,
     logout,
   };

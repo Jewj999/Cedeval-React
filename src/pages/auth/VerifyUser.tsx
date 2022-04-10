@@ -1,5 +1,4 @@
 import {
-  Authenticated,
   Button,
   Card,
   FormGroup,
@@ -9,9 +8,8 @@ import {
 } from '@src/components';
 import { useAuth } from '@src/hooks';
 import { RegisterForm } from '@src/interfaces';
-import { FC, useState } from 'react';
+import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
 
 interface Option {
   label: string;
@@ -24,11 +22,10 @@ const options: Option[] = [
   { label: 'Pasaporte', value: 'PASS' },
 ];
 
-const SignupPage: FC = () => {
+export default function VerifyUserPage() {
   const [error, setError] = useState('');
 
-  const navigate = useNavigate();
-  const { register: signup } = useAuth({
+  const { forgotPasswordValidateUser } = useAuth({
     middleware: 'guest',
     redirectIfAuthenticated: '/dashboard',
     setError,
@@ -39,7 +36,7 @@ const SignupPage: FC = () => {
     register,
     getFieldState,
     getValues,
-    formState: { errors, isValid, isDirty },
+    formState: { isValid },
   } = useForm<RegisterForm>({
     mode: 'onChange',
     defaultValues: {
@@ -50,10 +47,9 @@ const SignupPage: FC = () => {
   });
 
   const onSubmit: SubmitHandler<RegisterForm> = (data) => {
-    signup(data);
+    forgotPasswordValidateUser(data);
   };
   const documentTypeState = getFieldState('document_type');
-  const documentValueState = getFieldState('document_value');
   const emailState = getFieldState('email');
 
   return (
@@ -62,12 +58,17 @@ const SignupPage: FC = () => {
         <div className="my-6 mx-4 sm:w-[409px]">
           <Card>
             <div className="flex flex-col gap-4 p-4">
-              <div className="flex items-center justify-center p-4">
+              <div className="flex items-center justify-center p-2">
                 <div className="">
-                  <h3 className="text-center">Registro</h3>
+                  <h3 className="text-center">
+                    Recuperar contraseña o recuperar usuario
+                  </h3>
                   <p className="text-center text-neutral-500">
-                    Solicita el ingreso a tu cuenta llenando el siguiente
-                    formulario.
+                    Para restablecer alguna de estas altenativas debemos validar
+                    tu cuenta.
+                  </p>
+                  <p className="mt-2 text-center text-neutral-500">
+                    Por favor, ingresa los siguientes datos:
                   </p>
                 </div>
               </div>
@@ -85,11 +86,11 @@ const SignupPage: FC = () => {
                       rules={{ required: true }}
                     ></FormSelect>
                     {/* <ErrorBag>
-                      <p>
-                        {errors.document_type &&
-                          t('required', { ns: 'validations' })}
-                      </p>
-                    </ErrorBag> */}
+                          <p>
+                            {errors.document_type &&
+                              t('required', { ns: 'validations' })}
+                          </p>
+                        </ErrorBag> */}
                   </FormGroup>
                   {/* Document Number Field */}
                   <FormGroup
@@ -103,11 +104,11 @@ const SignupPage: FC = () => {
                       {...register('document_value', { required: true })}
                     ></FormInput>
                     {/* <ErrorBag>
-                      <p>
-                        {errors.document_value &&
-                          t('required', { ns: 'validations' })}
-                      </p>
-                    </ErrorBag> */}
+                          <p>
+                            {errors.document_value &&
+                              t('required', { ns: 'validations' })}
+                          </p>
+                        </ErrorBag> */}
                   </FormGroup>
                   {/* Email Field */}
                   <FormGroup
@@ -120,37 +121,25 @@ const SignupPage: FC = () => {
                       {...register('email', { required: true })}
                     ></FormInput>
                     {/* <ErrorBag>
-                      <p>
-                        {errors.email && t('required', { ns: 'validations' })}
-                      </p>
-                    </ErrorBag> */}
+                          <p>
+                            {errors.email && t('required', { ns: 'validations' })}
+                          </p>
+                        </ErrorBag> */}
                   </FormGroup>
                   {/* Submit button */}
                   <FormGroup>
                     <div className="grid mt-4">
                       <Button type="submit" style="primary" disabled={!isValid}>
-                        Solicitar registro
+                        Solicitar cambio de contraseña
                       </Button>
                     </div>
                   </FormGroup>
                 </div>
               </form>
-
-              <div className="flex flex-col gap-6 m-2">
-                <div className="text-center">
-                  <Link to="/login">
-                    <span className="cursor-pointer text-secondary-500">
-                      Ya tengo cuenta
-                    </span>
-                  </Link>
-                </div>
-              </div>
             </div>
           </Card>
         </div>
       </div>
     </Unauthenticated>
   );
-};
-
-export default SignupPage;
+}

@@ -30,7 +30,9 @@ const AccountBodyItem: FunctionComponent<AccountBodyItemProps> = ({
 };
 
 const AccountSection: FunctionComponent<{ account: any }> = ({ account }) => {
-  const { user } = useAuth({});
+  const [error, setError] = useState('');
+
+  const { user } = useAuth({ setError });
   const [houses, setHouses] = useState<Record<string, any>>({});
   useEffect(() => {
     const parsedHouses = user?.casas.reduce((r: any, a) => {

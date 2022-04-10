@@ -1,12 +1,14 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { LogoWhite, AvatarContainer } from '@components';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@src/hooks';
 
 export const Authenticated: FC = ({ children }) => {
+  const [error, setError] = useState('')
   const { user } = useAuth({
     middleware: 'auth',
     redirectIfAuthenticated: 'dashboard',
+    setError
   });
 
   return (
