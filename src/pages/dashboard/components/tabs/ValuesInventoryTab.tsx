@@ -133,7 +133,7 @@ const ValuesInventoryTab: FC<{ account: any }> = () => {
         </div>
 
         <div className="flex flex-col divide-y">
-          {inventories.map((inventory, index) => (
+          {inventories?.map((inventory, index) => (
             <div
               className="grid grid-cols-2 p-3 cursor-pointer hover:bg-neutral-100"
               key={index}

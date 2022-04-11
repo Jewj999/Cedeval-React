@@ -101,14 +101,13 @@ export const useAuth = ({
           },
         }
       )
-      .then(async (response) => {
+      .then((response) => {
         localStorage.setItem('token', response.data.access_token);
         localStorage.setItem('email', username);
-        axios.defaults.headers.common[
-          'Authorization'
-        ] = `Bearer ${response.data.access_token}`;
+        axios.defaults.headers.common.Authorization = `Bearer ${response.data.access_token}`;
         try {
-          await validateUserInfo('/vbesRest/getInformationLogin');
+          validateUserInfo('/vbesRest/getInformationLogin');
+          navigate('/dashboard');
         } catch (err: any) {
           setError(err.message);
         }
