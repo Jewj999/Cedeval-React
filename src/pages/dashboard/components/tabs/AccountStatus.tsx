@@ -1,3 +1,4 @@
+import { accountAtom } from '@src/atoms/account';
 import { Card, FormGroup, FormInput, Modal, Text } from '@src/components';
 import { EmptyState } from '@src/components/ui/EmptyState';
 import AccountContext from '@src/context/AccountContext';
@@ -5,31 +6,41 @@ import { useAccount } from '@src/hooks/account';
 import { axios, currency, dayjs } from '@src/libs';
 import { FC, FunctionComponent, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
 
 interface FormValues {
   search: string;
 }
-const AccountStatusTab: FC<{ account: any }> = ({ account }) => {
+const AccountStatusTab: FC = () => {
   const { register, handleSubmit } = useForm<FormValues>();
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [currentTransaction, setCurrentTransaction] = useState<any>({});
-  const [isEmpty, setIsEmpty] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(true);
+  const [account, setAccount] = useRecoilState(accountAtom);
+
   useEffect(() => {
+    if (account.cta === '') return;
     axios
       .post('/vbesRest/getAccountSummary', {
         request: {
           msg: {
-            cte: '01',
-            cta: '0',
-            tcta: '01',
+            cte: account.cte,
+            cta: account.cta,
+            tcta: account.tcta,
+            mes: 0,
           },
         },
       })
       .then((res) => {
-        if (res.data.response.errorCode !== '0') {
+        if (
+          res.data?.response?.errorCode !== '0' ||
+          res.data.response.msg.cuentas.content.lenght === 0
+        ) {
+          setTransactions([]);
           setIsEmpty(true);
         } else {
+          setIsEmpty(false);
           setTransactions(res.data.response.msg.cuentas.content);
         }
       });

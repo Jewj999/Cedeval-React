@@ -22,6 +22,7 @@
     "react-hook-form": "^7.27.1",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
+    "recoil": "^0.7.0",
     "swr": "^1.2.2",
     "typescript": "^4.5.5",
     "web-vitals": "^2.1.4"

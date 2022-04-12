@@ -4,7 +4,7 @@ export interface GetInformationLogin {
   response: Response<GetInformationLoginResponse>;
 }
 
-interface GetInformationLoginResponse {
+export interface GetInformationLoginResponse {
   usuario: {
     bvsIduse: number;
     bvsTipodoc: string;

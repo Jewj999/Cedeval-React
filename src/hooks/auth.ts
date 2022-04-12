@@ -1,3 +1,5 @@
+import { userAtom } from './../atoms/user';
+import { useRecoilState } from 'recoil';
 import {
   GetInformationLogin,
   LoginForm,
@@ -30,6 +32,7 @@ export const useAuth = ({
   setError,
 }: UseAuthProps) => {
   const navigate = useNavigate();
+  const [userState, setUserState] = useRecoilState(userAtom);
 
   const validateUserInfo = async (url: string) => {
     const {
@@ -47,6 +50,7 @@ export const useAuth = ({
       setError(response.errorMessage ?? '');
       throw new Error(response.errorMessage);
     } else {
+      setUserState(response.msg);
       return response.msg;
     }
   };

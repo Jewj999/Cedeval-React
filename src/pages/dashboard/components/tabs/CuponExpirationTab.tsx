@@ -1,31 +1,47 @@
+import { accountAtom } from '@src/atoms/account';
 import { Card, FormGroup, FormInput, Modal, Text } from '@src/components';
+import { EmptyState } from '@src/components/ui/EmptyState';
 import { axios, currency, dayjs } from '@src/libs';
 import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
 
 interface FormValues {
   search: string;
 }
 
-const CuponExpirationTab: FC<{ account: any }> = () => {
+const CuponExpirationTab: FC = () => {
   const { register, handleSubmit } = useForm<FormValues>();
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [couponsAccount, setCouponsAccount] = useState<any[]>([]);
   const [currentCoupon, setCurrentCoupon] = useState<any>({});
+  const [account, setAccount] = useRecoilState(accountAtom);
+  const [isEmpty, setIsEmpty] = useState(true);
 
   useEffect(() => {
+    if (account.cta === '') return;
     axios
       .post('/vbesRest/getCouponsAccoun', {
         request: {
           msg: {
-            cte: '1202',
+            cte: account.cte,
+            cta: account.cta,
           },
         },
       })
       .then((res) => {
-        setCouponsAccount(res.data.response.msg.cupones.content);
+        if (
+          res.data?.response?.errorCode !== '0' ||
+          res.data.response.msg.cupones.content.lenght === 0
+        ) {
+          setIsEmpty(true);
+          setCouponsAccount([]);
+        } else {
+          setIsEmpty(false);
+          setCouponsAccount(res.data.response.msg.cupones.content);
+        }
       });
-  }, []);
+  }, [account]);
   return (
     <Card>
       <Modal
@@ -47,7 +63,7 @@ const CuponExpirationTab: FC<{ account: any }> = () => {
                   Valor nominal
                 </Text>
                 <Text type="large" className="text-secondary-500" bold>
-                  {currency(currentCoupon.valorFacial).format()}
+                  {currency(currentCoupon.valor).format()}
                 </Text>
               </div>
               <div>
@@ -55,7 +71,7 @@ const CuponExpirationTab: FC<{ account: any }> = () => {
                   Precio valor del mercado
                 </Text>
                 <Text type="large" className="text-semantic-success" bold>
-                  {currency(currentCoupon.valMercdo).format()}
+                  {currency(currentCoupon.valor).format()}
                 </Text>
               </div>
             </div>
@@ -70,7 +86,7 @@ const CuponExpirationTab: FC<{ account: any }> = () => {
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Emisión</Text>
                 <Text type="small" bold>
-                  {currentCoupon.emision}
+                  {currentCoupon.emisionCodigo}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
@@ -82,7 +98,7 @@ const CuponExpirationTab: FC<{ account: any }> = () => {
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Fecha de vencimiento</Text>
                 <Text type="small" bold>
-                  {dayjs(currentCoupon.fvence).format('DD [de] MMMM YYYY')}
+                  {dayjs(currentCoupon.fechaPago).format('DD [de] MMMM YYYY')}
                 </Text>
               </div>
             </div>
@@ -128,38 +144,47 @@ const CuponExpirationTab: FC<{ account: any }> = () => {
         </div>
 
         <div className="flex flex-col divide-y">
-          {couponsAccount.map((coupon) => (
-            <div
-              className="grid grid-cols-2 p-3 cursor-pointer hover:bg-neutral-100"
-              key={coupon.vwcIdinven}
-              onClick={() => {
-                setIsOpenModal(true);
-                setCurrentCoupon(coupon);
-              }}
-            >
-              <div className="flex flex-col">
-                <p className="text-sm text-neutral-600">#{coupon.emisor}</p>
-                <p className="text-base text-neutral-500">{coupon.emision}</p>
-              </div>
-              <div className="flex justify-end gap-2">
-                <div className="flex flex-col justify-center">
-                  <p className="text-xs text-neutral-600">Valor nominal</p>
-                  <p className="text-lg font-bold text-secondary-500">
-                    {currency(coupon.valorFacial).format()}
+          {isEmpty && (
+            <div className="flex justify-center w-full">
+              <EmptyState />
+            </div>
+          )}
+
+          {!isEmpty &&
+            couponsAccount.map((coupon, index) => (
+              <div
+                className="grid grid-cols-2 p-3 cursor-pointer hover:bg-neutral-100"
+                key={index}
+                onClick={() => {
+                  setIsOpenModal(true);
+                  setCurrentCoupon(coupon);
+                }}
+              >
+                <div className="flex flex-col">
+                  <p className="text-sm text-neutral-600">#{coupon.emisor}</p>
+                  <p className="text-base text-neutral-500">
+                    {coupon.emisionCodigo}
                   </p>
                 </div>
-                <div className="flex items-center justify-center">
-                  <button className="flex">
-                    <div className="flex items-center justify-center">
-                      <span className="w-5 h-5 material-icons text-neutral-500">
-                        chevron_right
-                      </span>
-                    </div>
-                  </button>
+                <div className="flex justify-end gap-2">
+                  <div className="flex flex-col justify-center">
+                    <p className="text-xs text-neutral-600">Valor nominal</p>
+                    <p className="text-lg font-bold text-secondary-500">
+                      {currency(coupon.valor).format()}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <button className="flex">
+                      <div className="flex items-center justify-center">
+                        <span className="w-5 h-5 material-icons text-neutral-500">
+                          chevron_right
+                        </span>
+                      </div>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
 
           <div className="flex items-center justify-center gap-4 pt-6">
             {[1, 2, 3, 4, 5].map((item) => (

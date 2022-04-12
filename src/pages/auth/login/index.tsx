@@ -1,3 +1,4 @@
+import { userAtom } from '@src/atoms/user';
 import {
   Button,
   Card,
@@ -13,6 +14,7 @@ import { axios } from '@src/libs';
 import { FunctionComponent, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 
 const LoginPage: FunctionComponent = () => {
   const [error, setError] = useState('');
