@@ -195,6 +195,21 @@ export const useAuth = ({
     window.location.pathname = '/login';
   };
 
+  const signOut = async () => {
+    await axios.put('/vbesRest/logoutSession', {
+      request: {
+        msg: {
+          idSesAct: userState.lastSession.bvsIdsesact,
+        },
+      },
+    });
+
+    localStorage.removeItem('token');
+    localStorage.removeItem('email');
+
+    window.location.pathname = '/login';
+  };
+
   useEffect(() => {
     if (middleware === 'guest' && redirectIfAuthenticated && user)
       navigate(redirectIfAuthenticated);
@@ -210,5 +225,6 @@ export const useAuth = ({
     resetPassword,
     // resendEmailVerification,
     logout,
+    signOut
   };
 };

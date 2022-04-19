@@ -2,13 +2,14 @@ import { FC, useState } from 'react';
 import { LogoWhite, AvatarContainer } from '@components';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@src/hooks';
+import { UserAvatar } from '../ui/UserAvatar';
 
 export const Authenticated: FC = ({ children }) => {
-  const [error, setError] = useState('')
-  const { user } = useAuth({
+  const [error, setError] = useState('');
+  const { user, signOut } = useAuth({
     middleware: 'auth',
     redirectIfAuthenticated: 'dashboard',
-    setError
+    setError,
   });
 
   return (
@@ -29,10 +30,11 @@ export const Authenticated: FC = ({ children }) => {
                 help_outline
               </span>
             </button>
-            <AvatarContainer
+            <UserAvatar logout={signOut}></UserAvatar>
+            {/* <AvatarContainer
               type="text"
               value={user?.usuario.bvsNombre[0].toUpperCase() || ''}
-            ></AvatarContainer>
+            ></AvatarContainer> */}
             {/* <HeaderLink link="#" label={t('house_brokers')}></HeaderLink> */}
           </div>
         </div>
