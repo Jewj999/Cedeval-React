@@ -60,7 +60,7 @@ export const useAuth = ({
     error,
     mutate,
   } = useSWR('/vbesRest/getInformationLogin', validateUserInfo, {
-    shouldRetryOnError: false,
+    shouldRetryOnError: true,
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,

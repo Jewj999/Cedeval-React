@@ -18,9 +18,9 @@ const AccountStatusTab: FC = () => {
   const [currentTransaction, setCurrentTransaction] = useState<any>({});
   const [isEmpty, setIsEmpty] = useState(true);
   const [account, setAccount] = useRecoilState(accountAtom);
+  const [paginator, setpaginator] = useState<any>({});
 
-  useEffect(() => {
-    if (account.cta === '') return;
+  const fetchAccountSummary = async (page?: number) => {
     axios
       .post('/vbesRest/getAccountSummary', {
         request: {
@@ -42,9 +42,24 @@ const AccountStatusTab: FC = () => {
         } else {
           setIsEmpty(false);
           setTransactions(res.data.response.msg.cuentas.content);
+          setpaginator({
+            totalPages: res.data.response.msg.cuentas.totalPages,
+            currentPage: res.data.response.msg.cuentas.number,
+            totalElements: res.data.response.msg.cuentas.totalElements,
+          });
         }
       });
+  };
+  
+  useEffect(() => {
+    if (account.cta === '') return;
+    fetchAccountSummary();
   }, [account]);
+
+  const nextPage = () => {
+    if (paginator.currentPage + 1 === paginator.totalPages) return;
+    fetchAccountSummary(paginator.currentPage + 1);
+  };
 
   return (
     <Card>
@@ -75,7 +90,7 @@ const AccountStatusTab: FC = () => {
                     : 'Retiro'}
                 </Text>
                 <Text type="large" bold>
-                  {currency(currentTransaction.monto).format()}
+                  {currency(currentTransaction.vFacial).format()}
                 </Text>
               </div>
             </div>
@@ -142,7 +157,9 @@ const AccountStatusTab: FC = () => {
             <span className="text-sm font-bold text-neutral-500">
               Resultados:{' '}
             </span>
-            <span className="text-sm text-neutral-500">459 registros</span>
+            <span className="text-sm text-neutral-500">
+              {paginator.totalElements} registros
+            </span>
           </div>
         </div>
 
@@ -207,7 +224,7 @@ const AccountStatusTab: FC = () => {
                           : 'text-semantic-error'
                       }`}
                     >
-                      {currency(transaction.monto).format()}
+                      {currency(transaction.vFacial).format()}
                     </p>
                   </div>
                   <div className="flex items-center justify-center">
@@ -224,22 +241,26 @@ const AccountStatusTab: FC = () => {
             ))}
 
           <div className="flex items-center justify-center gap-4 pt-6">
-            {[1, 2, 3, 4, 5].map((item) => (
-              <button
-                className="text-base font-bold text-neutral-500 hover:text-secondary-500"
-                key={item}
-              >
-                <span>{item}</span>
-              </button>
-            ))}
-            <button>
-              <span>...</span>
-            </button>
-            <button className="text-base font-bold text-neutral-500 hover:text-secondary-500">
-              <span>15</span>
-            </button>
+            {Array(paginator?.totalPages)
+              .fill(0)
+              .map((item, index) => (
+                <button
+                  onClick={() => fetchAccountSummary(index)}
+                  className={`text-base  text-neutral-500 hover:text-secondary-500 ${
+                    index === paginator?.currentPage
+                      ? 'text-secondary-500 font-bold'
+                      : ''
+                  }`}
+                  key={index}
+                >
+                  <span>{index + 1}</span>
+                </button>
+              ))}
             <div className="flex items-center justify-center mb-1">
-              <button className="flex text-base font-bold text-neutral-500 hover:text-secondary-500 ">
+              <button
+                onClick={() => nextPage()}
+                className="flex text-base font-bold text-neutral-500 hover:text-secondary-500 "
+              >
                 <div className="flex items-center justify-center">
                   <span className="w-5 h-5 material-icons text-neutral-500">
                     chevron_right

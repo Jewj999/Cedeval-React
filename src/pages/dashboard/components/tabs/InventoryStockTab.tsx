@@ -17,9 +17,9 @@ const InventoryStockTab: FC = () => {
   const [currentInventory, setCurrentInventory] = useState<any>({});
   const [isEmpty, setIsEmpty] = useState(true);
   const [account, setAccount] = useRecoilState(accountAtom);
+  const [paginator, setpaginator] = useState<any>({});
 
-  useEffect(() => {
-    if (account.cta === '') return;
+  const fetchInventory = async (page?: number) => {
     axios
       .post('/vbesRest/getInventory', {
         request: {
@@ -41,9 +41,24 @@ const InventoryStockTab: FC = () => {
         } else {
           setIsEmpty(false);
           setInventories(res.data.response.msg.inventoryList.content);
+          setpaginator({
+            totalPages: res.data.response.msg.inventoryList.totalPages,
+            currentPage: res.data.response.msg.inventoryList.number,
+            totalElements: res.data.response.msg.inventoryList.totalElements,
+          });
         }
       });
+  };
+
+  useEffect(() => {
+    if (account.cta === '') return;
+    fetchInventory();
   }, [account]);
+
+  const nextPage = () => {
+    if (paginator.currentPage + 1 === paginator.totalPages) return;
+    fetchInventory(paginator.currentPage + 1);
+  };
 
   return (
     <Card>
@@ -181,7 +196,10 @@ const InventoryStockTab: FC = () => {
             <span className="text-sm font-bold text-neutral-500">
               Resultados:{' '}
             </span>
-            <span className="text-sm text-neutral-500">459 registros</span>
+            <span className="text-sm text-neutral-500">
+              {' '}
+              {paginator.totalElements} registros
+            </span>
           </div>
         </div>
 
@@ -246,22 +264,26 @@ const InventoryStockTab: FC = () => {
             ))}
 
           <div className="flex items-center justify-center gap-4 pt-6">
-            {[1, 2, 3, 4, 5].map((item) => (
-              <button
-                className="text-base font-bold text-neutral-500 hover:text-secondary-500"
-                key={item}
-              >
-                <span>{item}</span>
-              </button>
-            ))}
-            <button>
-              <span>...</span>
-            </button>
-            <button className="text-base font-bold text-neutral-500 hover:text-secondary-500">
-              <span>15</span>
-            </button>
+            {Array(paginator?.totalPages)
+              .fill(0)
+              .map((item, index) => (
+                <button
+                  onClick={() => fetchInventory(index)}
+                  className={`text-base  text-neutral-500 hover:text-secondary-500 ${
+                    index === paginator?.currentPage
+                      ? 'text-secondary-500 font-bold'
+                      : ''
+                  }`}
+                  key={index}
+                >
+                  <span>{index + 1}</span>
+                </button>
+              ))}
             <div className="flex items-center justify-center mb-1">
-              <button className="flex text-base font-bold text-neutral-500 hover:text-secondary-500 ">
+              <button
+                onClick={() => nextPage()}
+                className="flex text-base font-bold text-neutral-500 hover:text-secondary-500 "
+              >
                 <div className="flex items-center justify-center">
                   <span className="w-5 h-5 material-icons text-neutral-500">
                     chevron_right
