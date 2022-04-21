@@ -74,27 +74,18 @@ const DashboardPage: FC = () => {
                 {/* Content */}
                 <Tab.Panels className="">
                   <Tab.Panel>
-                    <ValuesInventoryTab
-                      account={actualAccount}
-                    ></ValuesInventoryTab>
+                    <ValuesInventoryTab />
                   </Tab.Panel>
 
                   <Tab.Panel>
-                    <AccountStatusTab
-                      account={actualAccount}
-                    ></AccountStatusTab>
+                    <AccountStatusTab />
                   </Tab.Panel>
 
                   <Tab.Panel>
-                    <CuponExpirationTab
-                      account={actualAccount}
-                    ></CuponExpirationTab>
+                    <CuponExpirationTab />
                   </Tab.Panel>
-
                   <Tab.Panel>
-                    <InventoryStockTab
-                      account={actualAccount}
-                    ></InventoryStockTab>
+                    <InventoryStockTab />
                   </Tab.Panel>
                 </Tab.Panels>
               </div>

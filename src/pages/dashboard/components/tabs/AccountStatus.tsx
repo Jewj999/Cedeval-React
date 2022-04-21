@@ -1,3 +1,4 @@
+import { accountAtom } from '@src/atoms/account';
 import { Card, FormGroup, FormInput, Modal, Text } from '@src/components';
 import { EmptyState } from '@src/components/ui/EmptyState';
 import AccountContext from '@src/context/AccountContext';
@@ -5,35 +6,60 @@ import { useAccount } from '@src/hooks/account';
 import { axios, currency, dayjs } from '@src/libs';
 import { FC, FunctionComponent, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
 
 interface FormValues {
   search: string;
 }
-const AccountStatusTab: FC<{ account: any }> = ({ account }) => {
+const AccountStatusTab: FC = () => {
   const { register, handleSubmit } = useForm<FormValues>();
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [currentTransaction, setCurrentTransaction] = useState<any>({});
-  const [isEmpty, setIsEmpty] = useState(false);
-  useEffect(() => {
+  const [isEmpty, setIsEmpty] = useState(true);
+  const [account, setAccount] = useRecoilState(accountAtom);
+  const [paginator, setpaginator] = useState<any>({});
+
+  const fetchAccountSummary = async (page?: number) => {
     axios
       .post('/vbesRest/getAccountSummary', {
         request: {
           msg: {
-            cte: '01',
-            cta: '0',
-            tcta: '01',
+            cte: account.cte,
+            cta: account.cta,
+            tcta: account.tcta,
+            mes: 0,
           },
         },
       })
       .then((res) => {
-        if (res.data.response.errorCode !== '0') {
+        if (
+          res.data?.response?.errorCode !== '0' ||
+          res.data.response.msg.cuentas.content.lenght === 0
+        ) {
+          setTransactions([]);
           setIsEmpty(true);
         } else {
+          setIsEmpty(false);
           setTransactions(res.data.response.msg.cuentas.content);
+          setpaginator({
+            totalPages: res.data.response.msg.cuentas.totalPages,
+            currentPage: res.data.response.msg.cuentas.number,
+            totalElements: res.data.response.msg.cuentas.totalElements,
+          });
         }
       });
+  };
+  
+  useEffect(() => {
+    if (account.cta === '') return;
+    fetchAccountSummary();
   }, [account]);
+
+  const nextPage = () => {
+    if (paginator.currentPage + 1 === paginator.totalPages) return;
+    fetchAccountSummary(paginator.currentPage + 1);
+  };
 
   return (
     <Card>
@@ -64,7 +90,7 @@ const AccountStatusTab: FC<{ account: any }> = ({ account }) => {
                     : 'Retiro'}
                 </Text>
                 <Text type="large" bold>
-                  {currency(currentTransaction.monto).format()}
+                  {currency(currentTransaction.vFacial).format()}
                 </Text>
               </div>
             </div>
@@ -131,7 +157,9 @@ const AccountStatusTab: FC<{ account: any }> = ({ account }) => {
             <span className="text-sm font-bold text-neutral-500">
               Resultados:{' '}
             </span>
-            <span className="text-sm text-neutral-500">459 registros</span>
+            <span className="text-sm text-neutral-500">
+              {paginator.totalElements} registros
+            </span>
           </div>
         </div>
 
@@ -196,7 +224,7 @@ const AccountStatusTab: FC<{ account: any }> = ({ account }) => {
                           : 'text-semantic-error'
                       }`}
                     >
-                      {currency(transaction.monto).format()}
+                      {currency(transaction.vFacial).format()}
                     </p>
                   </div>
                   <div className="flex items-center justify-center">
@@ -213,22 +241,26 @@ const AccountStatusTab: FC<{ account: any }> = ({ account }) => {
             ))}
 
           <div className="flex items-center justify-center gap-4 pt-6">
-            {[1, 2, 3, 4, 5].map((item) => (
-              <button
-                className="text-base font-bold text-neutral-500 hover:text-secondary-500"
-                key={item}
-              >
-                <span>{item}</span>
-              </button>
-            ))}
-            <button>
-              <span>...</span>
-            </button>
-            <button className="text-base font-bold text-neutral-500 hover:text-secondary-500">
-              <span>15</span>
-            </button>
+            {Array(paginator?.totalPages)
+              .fill(0)
+              .map((item, index) => (
+                <button
+                  onClick={() => fetchAccountSummary(index)}
+                  className={`text-base  text-neutral-500 hover:text-secondary-500 ${
+                    index === paginator?.currentPage
+                      ? 'text-secondary-500 font-bold'
+                      : ''
+                  }`}
+                  key={index}
+                >
+                  <span>{index + 1}</span>
+                </button>
+              ))}
             <div className="flex items-center justify-center mb-1">
-              <button className="flex text-base font-bold text-neutral-500 hover:text-secondary-500 ">
+              <button
+                onClick={() => nextPage()}
+                className="flex text-base font-bold text-neutral-500 hover:text-secondary-500 "
+              >
                 <div className="flex items-center justify-center">
                   <span className="w-5 h-5 material-icons text-neutral-500">
                     chevron_right

@@ -1,34 +1,61 @@
+import { accountAtom } from '@src/atoms/account';
 import { Card, FormGroup, FormInput, Modal, Text } from '@src/components';
+import { EmptyState } from '@src/components/ui/EmptyState';
 import { axios, currency, dayjs } from '@src/libs';
 import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
 
 interface FormValues {
   search: string;
 }
 
-const ValuesInventoryTab: FC<{ account: any }> = () => {
+const ValuesInventoryTab: FC = () => {
   const { register, handleSubmit } = useForm<FormValues>();
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [inventories, setInventories] = useState<any[]>([]);
   const [currentInventory, setCurrentInventory] = useState<any>({});
-
-  useEffect(() => {
+  const [account, setAccount] = useRecoilState(accountAtom);
+  const [isEmpty, setIsEmpty] = useState(true);
+  const [paginator, setpaginator] = useState<any>({});
+  const fetchInventories = async (page?: number) => {
     axios
-      .post('/vbesRest/getInventaryAccounts', {
+      .post(`/vbesRest/getInventaryAccounts?page=${page ?? 0}`, {
         request: {
           msg: {
-            tcta: '03',
-            cte: '07',
-            cta: '982',
+            tcta: account.tcta,
+            cte: account.cte,
+            cta: account.cta,
           },
         },
       })
       .then((res) => {
-        setInventories(res.data.request.msg.inventarioCuentas);
+        if (
+          res.data?.request?.errorCode !== '0' ||
+          res.data.request.msg.inventarioValores.content.lenght === 0
+        ) {
+          setInventories([]);
+          setIsEmpty(true);
+        } else {
+          setIsEmpty(false);
+          setInventories(res.data.request.msg.inventarioValores.content);
+          setpaginator({
+            totalPages: res.data.request.msg.inventarioValores.totalPages,
+            currentPage: res.data.request.msg.inventarioValores.number,
+            totalElements: res.data.request.msg.inventarioValores.totalElements,
+          });
+        }
       });
-  }, []);
+  };
+  useEffect(() => {
+    if (account.cta === '') return;
+    fetchInventories();
+  }, [account]);
 
+  const nextPage = () => {
+    if (paginator.currentPage + 1 === paginator.totalPages) return;
+    fetchInventories(paginator.currentPage + 1);
+  };
   return (
     <Card>
       <Modal
@@ -49,7 +76,7 @@ const ValuesInventoryTab: FC<{ account: any }> = () => {
                   Valor nominal
                 </Text>
                 <Text type="large" className="text-secondary-500" bold>
-                  {currency(currentInventory?.valnominal).format()}
+                  {currency(currentInventory?.valnom).format()}
                 </Text>
               </div>
               <div>
@@ -57,7 +84,7 @@ const ValuesInventoryTab: FC<{ account: any }> = () => {
                   Precio valor del mercado
                 </Text>
                 <Text type="large" className="text-semantic-success" bold>
-                  {currency(currentInventory?.precioMercado).format()}
+                  {currency(currentInventory?.valmer).format()}
                 </Text>
               </div>
             </div>
@@ -66,7 +93,7 @@ const ValuesInventoryTab: FC<{ account: any }> = () => {
               <div className="px-6 py-4">
                 <Text type="small">Emisor</Text>
                 <Text type="small" bold>
-                  {currentInventory.emisor}
+                  {currentInventory.nomemi}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
@@ -84,13 +111,13 @@ const ValuesInventoryTab: FC<{ account: any }> = () => {
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Moneda</Text>
                 <Text type="small" bold>
-                  {currentInventory.moneda}
+                  {currentInventory.nommon}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
                 <Text type="small">Tasa de interés</Text>
                 <Text type="small" bold>
-                  {currentInventory.tasa}
+                  {currentInventory.tasa}%
                 </Text>
               </div>
             </div>
@@ -120,7 +147,9 @@ const ValuesInventoryTab: FC<{ account: any }> = () => {
             <span className="text-sm font-bold text-neutral-500">
               Resultados:{' '}
             </span>
-            <span className="text-sm text-neutral-500">459 registros</span>
+            <span className="text-sm text-neutral-500">
+              {paginator.totalElements} registros
+            </span>
           </div>
         </div>
 
@@ -133,56 +162,70 @@ const ValuesInventoryTab: FC<{ account: any }> = () => {
         </div>
 
         <div className="flex flex-col divide-y">
-          {inventories.map((inventory, index) => (
-            <div
-              className="grid grid-cols-2 p-3 cursor-pointer hover:bg-neutral-100"
-              key={index}
-              onClick={() => {
-                setIsOpenModal(true);
-                setCurrentInventory(inventory);
-              }}
-            >
-              <div className="flex flex-col">
-                <p className="text-sm text-neutral-600">{inventory.emision}</p>
-                <p className="text-base text-neutral-500">{inventory.emisor}</p>
-              </div>
-              <div className="flex justify-end gap-2">
-                <div className="flex flex-col justify-center">
-                  <p className="text-xs text-neutral-600">Valor nominal</p>
-                  <p className="text-lg font-bold text-secondary-500">
-                    {currency(inventory.valnominal).format()}
+          {isEmpty && (
+            <div className="flex justify-center w-full">
+              <EmptyState />
+            </div>
+          )}
+          {!isEmpty &&
+            inventories?.map((inventory, index) => (
+              <div
+                className="grid grid-cols-2 p-3 cursor-pointer hover:bg-neutral-100"
+                key={index}
+                onClick={() => {
+                  setIsOpenModal(true);
+                  setCurrentInventory(inventory);
+                }}
+              >
+                <div className="flex flex-col">
+                  <p className="text-sm text-neutral-600">
+                    {inventory.emision}
+                  </p>
+                  <p className="text-base text-neutral-500">
+                    {inventory.nomemi}
                   </p>
                 </div>
-                <div className="flex items-center justify-center">
-                  <button className="flex">
-                    <div className="flex items-center justify-center">
-                      <span className="w-5 h-5 material-icons text-neutral-500">
-                        chevron_right
-                      </span>
-                    </div>
-                  </button>
+                <div className="flex justify-end gap-2">
+                  <div className="flex flex-col justify-center">
+                    <p className="text-xs text-neutral-600">Valor nominal</p>
+                    <p className="text-lg font-bold text-secondary-500">
+                      {currency(inventory.valnom).format()}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <button className="flex">
+                      <div className="flex items-center justify-center">
+                        <span className="w-5 h-5 material-icons text-neutral-500">
+                          chevron_right
+                        </span>
+                      </div>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
 
           <div className="flex items-center justify-center gap-4 pt-6">
-            {[1, 2, 3, 4, 5].map((item) => (
-              <button
-                className="text-base font-bold text-neutral-500 hover:text-secondary-500"
-                key={item}
-              >
-                <span>{item}</span>
-              </button>
-            ))}
-            <button>
-              <span>...</span>
-            </button>
-            <button className="text-base font-bold text-neutral-500 hover:text-secondary-500">
-              <span>15</span>
-            </button>
+            {Array(paginator?.totalPages)
+              .fill(0)
+              .map((item, index) => (
+                <button
+                  onClick={() => fetchInventories(index)}
+                  className={`text-base  text-neutral-500 hover:text-secondary-500 ${
+                    index === paginator?.currentPage
+                      ? 'text-secondary-500 font-bold'
+                      : ''
+                  }`}
+                  key={index}
+                >
+                  <span>{index + 1}</span>
+                </button>
+              ))}
             <div className="flex items-center justify-center mb-1">
-              <button className="flex text-base font-bold text-neutral-500 hover:text-secondary-500 ">
+              <button
+                onClick={() => nextPage()}
+                className="flex text-base font-bold text-neutral-500 hover:text-secondary-500 "
+              >
                 <div className="flex items-center justify-center">
                   <span className="w-5 h-5 material-icons text-neutral-500">
                     chevron_right

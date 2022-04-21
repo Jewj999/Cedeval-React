@@ -1,3 +1,4 @@
+import { userAtom } from '@src/atoms/user';
 import {
   Button,
   Card,
@@ -6,25 +7,49 @@ import {
   Title,
   Unauthenticated,
 } from '@src/components';
+import Notification from '@src/components/ui/Notification';
 import { useAuth } from '@src/hooks';
 import { LoginForm } from '@src/interfaces';
 import { axios } from '@src/libs';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 
 const LoginPage: FunctionComponent = () => {
+  const [error, setError] = useState('');
+  const [showNotification, setShowNotification] = useState(false);
+
   const { login } = useAuth({
     middleware: 'guest',
     redirectIfAuthenticated: '/dashboard',
+    setError,
   });
 
   const { register, handleSubmit } = useForm<LoginForm>();
   const onSubmit: SubmitHandler<LoginForm> = (data) => {
     login(data);
   };
+
+  useEffect(() => {
+    if (error !== '') {
+      setShowNotification(true);
+    }
+  }, [error]);
+
+  const handleOnClose = () => {
+    setError('');
+    setShowNotification(false);
+  };
   return (
     <Unauthenticated>
+      <Notification
+        message={error}
+        title="Ha ocurrido un error"
+        type="error"
+        open={showNotification}
+        onClose={() => handleOnClose()}
+      />
       <div className="container flex items-center justify-center flex-1 mx-auto ">
         <div className="my-6 mx-4 sm:w-[409px]">
           <Card>
@@ -67,7 +92,7 @@ const LoginPage: FunctionComponent = () => {
 
               <div className="flex flex-col gap-6 m-2">
                 <div className="text-center">
-                  <Link to="/recover">
+                  <Link to="/verify-user">
                     <span className="cursor-pointer text-secondary-500">
                       ¿Usuario bloqueado u olvidaste tu contraseña?
                     </span>
