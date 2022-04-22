@@ -54,12 +54,17 @@ export const Authenticated: FC = ({ children }) => {
           <hr className="border-[#AAAEB8]" />
           <div className="grid grid-cols-2 gap-10">
             <div className="flex justify-around gap-4 text-sm font-bold tracking-wide">
-              <Link to="#">
-                <span>Contáctanos</span>
-              </Link>
-              <Link to="#">
+            <a
+                rel="noopener noreferrer"
+                href="https://www.cedeval.com/contacto/"
+                target="_blank"
+              >
+                <span>Contacto</span>
+              </a>
+
+              <a href='#'>
                 <span>Contratos de confidencialidad</span>
-              </Link>
+              </a>
             </div>
             <div>
               <p className="text-xs tracking-wide text-center">
