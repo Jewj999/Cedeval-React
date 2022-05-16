@@ -73,18 +73,21 @@ export const useAuth = ({
   }: RegisterForm) => {
     axios
       .post('/vbsRegister/registerUser', {
-        request: {
-          msg: {
-            email,
-            tipoDoc: document_type,
-            numDoc: document_value,
-          },
+        msg: {
+          email,
+          tipoDoc: document_type,
+          numDoc: document_value,
         },
       })
-      .then(() => {
-        navigate('/signup/successful');
+      .then((res) => {
+        if (res.data.response.errorCode === '0') {
+          navigate('/signup/successful');
+        } else {
+          setError(res.data.response.errorMessage);
+        }
       })
       .catch((error) => {
+        setError(error.response.data.response.errorMessage);
         if (error.response.status !== 422) throw error;
       });
   };
@@ -225,6 +228,6 @@ export const useAuth = ({
     resetPassword,
     // resendEmailVerification,
     logout,
-    signOut
+    signOut,
   };
 };

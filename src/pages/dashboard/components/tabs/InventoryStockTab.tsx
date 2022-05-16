@@ -5,15 +5,23 @@ import { axios, currency, dayjs } from '@src/libs';
 import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
+import SearchBar from './components/SearchBar';
+import SelectBar from './components/SelectBar';
 
 interface FormValues {
-  search: string;
+  search: String;
+  month: String;
 }
 
 const InventoryStockTab: FC = () => {
-  const { register } = useForm<FormValues>();
+  const { register, control, watch } = useForm<FormValues>();
+  const month = watch('month');
+  const search = watch('search');
+
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [inventories, setInventories] = useState<any[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
+
   const [currentInventory, setCurrentInventory] = useState<any>({});
   const [isEmpty, setIsEmpty] = useState(true);
   const [account, setAccount] = useRecoilState(accountAtom);
@@ -27,7 +35,7 @@ const InventoryStockTab: FC = () => {
             cte: account.cte,
             cta: account.cta,
             tcta: account.tcta,
-            mes: 1,
+            mes: month ?? 1,
           },
         },
       })
@@ -53,12 +61,35 @@ const InventoryStockTab: FC = () => {
   useEffect(() => {
     if (account.cta === '') return;
     fetchInventory();
-  }, [account]);
+  }, [account, month]);
+
+  useEffect(() => {
+    const filtered = inventories.filter((transaction) => {
+      return transaction.emision.toLowerCase().includes(search.toLowerCase());
+    });
+
+    setFilteredTransactions(filtered);
+  }, [search, inventories]);
 
   const nextPage = () => {
     if (paginator.currentPage + 1 === paginator.totalPages) return;
     fetchInventory(paginator.currentPage + 1);
   };
+
+  const months = [
+    {
+      value: 1,
+      label: 'Cierre a ' + dayjs().subtract(1, 'month').format('MMMM YYYY'),
+    },
+    {
+      value: 2,
+      label: 'Cierre a ' + dayjs().subtract(2, 'month').format('MMMM YYYY'),
+    },
+    {
+      value: 3,
+      label: 'Cierre a ' + dayjs().subtract(3, 'month').format('MMMM YYYY'),
+    },
+  ];
 
   return (
     <Card>
@@ -181,16 +212,12 @@ const InventoryStockTab: FC = () => {
                 Consulta desde:
               </span>
             </div>
-            <div className="flex items-center p-2 divide-x rounded-md outline-neutral-700 outline outline-1 text-neutral-500">
-              <div className="px-3 py-1">
-                <p className="text-xs ">Desde:</p>
-                <p className="text-sm font-bold ">Noviembre 2020</p>
-              </div>
-              <div className="px-3 py-1">
-                <p className="text-xs ">Desde:</p>
-                <p className="text-sm font-bold ">Noviembre 2020</p>
-              </div>
-            </div>
+            <SelectBar
+              options={months}
+              control={control}
+              name="month"
+              rules={{ required: true }}
+            ></SelectBar>
           </div>
           <div className="flex items-center justify-end gap-2">
             <span className="text-sm font-bold text-neutral-500">
@@ -198,7 +225,7 @@ const InventoryStockTab: FC = () => {
             </span>
             <span className="text-sm text-neutral-500">
               {' '}
-              {paginator.totalElements} registros
+              {paginator.totalElements ?? 0} registros
             </span>
           </div>
         </div>
@@ -206,7 +233,7 @@ const InventoryStockTab: FC = () => {
         <div className="relative ">
           <div className="z-50">
             <FormGroup>
-              <FormInput {...register('search')}></FormInput>
+              <SearchBar placeholder="Buscar cuenta" {...register('search')} />
             </FormGroup>
           </div>
           {/* <div className="absolute top-0 z-10 flex items-center justify-start w-full h-full">
@@ -226,7 +253,7 @@ const InventoryStockTab: FC = () => {
           )}
 
           {!isEmpty &&
-            inventories.map((inventory, index) => (
+            filteredTransactions.map((inventory, index) => (
               <div
                 className="grid grid-cols-2 p-3 cursor-pointer hover:bg-neutral-100"
                 key={index}

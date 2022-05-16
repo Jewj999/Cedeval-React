@@ -99,7 +99,6 @@ export default function VerifyUserPage() {
                   >
                     <FormInput
                       haserror={documentTypeState.invalid}
-                      disabled={getValues('document_type') === ''}
                       placeholder="00000000-0"
                       {...register('document_value', { required: true })}
                     ></FormInput>

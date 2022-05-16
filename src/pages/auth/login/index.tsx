@@ -41,6 +41,7 @@ const LoginPage: FunctionComponent = () => {
     setError('');
     setShowNotification(false);
   };
+  
   return (
     <Unauthenticated>
       <Notification

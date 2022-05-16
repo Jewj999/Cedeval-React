@@ -38,7 +38,6 @@ const AccountSection: FunctionComponent<{ account: any }> = () => {
 
   const [houses, setHouses] = useState<Record<string, any>>({});
   useEffect(() => {
-    console.log(userState);
     const parsedHouses = userState?.casas.reduce((r: any, a) => {
       r[`${a.tmvNomcor}`] = [...(r[`${a.tmvNomcor}`] || []), a];
       return r;

@@ -1,10 +1,16 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { LogoWhite, AvatarContainer } from '@components';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@src/hooks';
 import { UserAvatar } from '../ui/UserAvatar';
+import { useIdleTimer } from 'react-idle-timer';
 
 export const Authenticated: FC = ({ children }) => {
+  const { isIdle } = useIdleTimer({
+    onIdle: () => _handleIdle(),
+    timeout: 90000,
+  });
+
   const [error, setError] = useState('');
   const { user, signOut } = useAuth({
     middleware: 'auth',
@@ -12,6 +18,11 @@ export const Authenticated: FC = ({ children }) => {
     setError,
   });
 
+  useEffect(() => {}, [isIdle]);
+
+  const _handleIdle = () => {
+    signOut();
+  };
   return (
     <div className="flex flex-col min-h-screen">
       <header className=" bg-primary">
@@ -54,7 +65,7 @@ export const Authenticated: FC = ({ children }) => {
           <hr className="border-[#AAAEB8]" />
           <div className="grid grid-cols-2 gap-10">
             <div className="flex justify-around gap-4 text-sm font-bold tracking-wide">
-            <a
+              <a
                 rel="noopener noreferrer"
                 href="https://www.cedeval.com/contacto/"
                 target="_blank"
@@ -62,7 +73,7 @@ export const Authenticated: FC = ({ children }) => {
                 <span>Contacto</span>
               </a>
 
-              <a href='#'>
+              <a href="#">
                 <span>Contratos de confidencialidad</span>
               </a>
             </div>
