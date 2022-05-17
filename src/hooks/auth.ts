@@ -17,6 +17,7 @@ import {
 } from 'react';
 import { Router, useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
+import Axios from 'axios';
 
 type Middleware = 'guest' | 'auth';
 
@@ -126,49 +127,101 @@ export const useAuth = ({
     document_type = '',
     document_value = '',
   }) => {
-    const { data: response } = await axios.post<Response<any>>(
-      '/vbesRest/validateUser',
-      {
-        request: {
-          msg: {
-            correo: email,
-            tipoDoc: document_type,
-            numDoc: document_value,
-          },
+    setError('');
+
+    const {
+      data: { response },
+    } = await axios.post<Response<any>>('/vbesRecoveryUser/validateUser', {
+      request: {
+        msg: {
+          correo: email,
+          tipoDoc: document_type,
+          numDoc: document_value,
         },
-      }
-    );
+      },
+    });
 
     if (response.errorCode !== '0') {
       setError(response.errorMessage ?? '');
       throw new Error(response.errorMessage);
     } else {
-      navigate('/password-reset?email=' + email);
+      const {
+        data: { access_token },
+      } = await getTokenForgotPassword();
+
+      const { data } = await sendTokenForgotPassword(access_token, {
+        email: email,
+        description: 'Solicitud de token para recuperar contraseña',
+        codCanal: 'CANAL_WEB',
+        tipo: 1,
+      });
+
+      navigate('/verify-token?email=' + email);
     }
+  };
+
+  const getTokenForgotPassword = async () => {
+    return Axios.create({
+      baseURL: process.env.REACT_APP_CEDEVAL_SECURITY_SERVICES_URL,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    }).post(
+      '/security/oauth/token',
+      qs.stringify({
+        username: process.env.REACT_APP_CEDEVAL_SECURITY_SERVICES_USER,
+        password: process.env.REACT_APP_CEDEVAL_SECURITY_SERVICES_PASSWORD,
+        grant_type: 'password',
+      }),
+      {
+        auth: {
+          username: process.env.REACT_APP_CEDEVAL_SECURITY_BASIC_USER ?? '',
+          password: process.env.REACT_APP_CEDEVAL_SECURITY_BASIC_PASSWORD ?? '',
+        },
+      }
+    );
+  };
+
+  const sendTokenForgotPassword = async (token: string, body: {}) => {
+    return Axios.create({
+      baseURL: process.env.REACT_APP_CEDEVAL_SECURITY_SERVICES_URL,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    }).post('/vbesSecurity/generateToken', body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    });
   };
 
   const resetPassword = async ({
     email,
     password,
     setStatus,
+    token,
   }: {
     email: string;
     password: string;
     setStatus: Dispatch<SetStateAction<boolean>>;
+    token: string;
   }) => {
     setError('');
 
+    console.log(email, password, token);
     axios
-      .post<Response<any>>('/vbesRest/changePassword', {
+      .put<Response<any>>('/vbesRecoveryUser/changePasswordUser', {
         request: {
           msg: {
             email,
             password,
             idTipoCambio: 4,
+            token,
           },
         },
       })
-      .then(({ data: response }) => {
+      .then(({ data: { response } }) => {
         if (response.errorCode !== '0') {
           setError(response.errorMessage ?? '');
           throw new Error(response.errorMessage);
@@ -176,7 +229,7 @@ export const useAuth = ({
           setStatus(true);
           setTimeout(() => {
             navigate('/login');
-          }, 2500);
+          }, 5000);
         }
       })
       .catch((err: any) => {

@@ -4,7 +4,7 @@ import Notification from '@src/components/ui/Notification';
 import { useAuth } from '@src/hooks';
 import { FunctionComponent, useEffect, useState } from 'react';
 import { SubmitHandler } from 'react-hook-form';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 const SetPassword: FunctionComponent<{}> = () => {
   const [search, setSearch] = useSearchParams();
@@ -13,6 +13,7 @@ const SetPassword: FunctionComponent<{}> = () => {
   const [error, setError] = useState('');
   const [status, setStatus] = useState(false);
   const navigate = useNavigate();
+  const { token } = useParams();
 
   const { resetPassword } = useAuth({
     middleware: 'guest',
@@ -31,12 +32,15 @@ const SetPassword: FunctionComponent<{}> = () => {
       email: search.get('email') ?? '',
       password: data.password,
       setStatus,
+      token: search.get('token') ?? '',
     });
   };
+  
   const handleOnClose = () => {
     setError('');
     setShowNotification(false);
   };
+
   return (
     <Unauthenticated>
       <Notification
@@ -49,7 +53,7 @@ const SetPassword: FunctionComponent<{}> = () => {
           navigate('/login');
         }}
       ></Notification>
-       <Notification
+      <Notification
         message={error}
         title="Ha ocurrido un error"
         type="error"

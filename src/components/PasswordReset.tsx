@@ -67,8 +67,6 @@ const ChangePassword: FunctionComponent<ChangePasswordProps> = ({
     <Card>
       <div className="grid grid-cols-1 gap-4 p-3">
         <div className="text-center">
-          <h3 className="">¡Bienvenido</h3>
-          <h3 className="">$UserName!</h3>
           <p className="mt-2 text-sm text-neutral-500">
             Te sugerimos crear una contraseña que proteja los datos de tu
             cuenta.

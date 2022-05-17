@@ -6,10 +6,12 @@ import {
   FormSelect,
   Unauthenticated,
 } from '@src/components';
+import Notification from '@src/components/ui/Notification';
 import { useAuth } from '@src/hooks';
 import { RegisterForm } from '@src/interfaces';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 
 interface Option {
   label: string;
@@ -24,12 +26,25 @@ const options: Option[] = [
 
 export default function VerifyUserPage() {
   const [error, setError] = useState('');
+  const [showNotification, setShowNotification] = useState(false);
 
   const { forgotPasswordValidateUser } = useAuth({
     middleware: 'guest',
     redirectIfAuthenticated: '/dashboard',
     setError,
   });
+
+  useEffect(() => {
+    if (error !== '') {
+      setShowNotification(true);
+    }
+  }, [error]);
+
+  const handleOnClose = () => {
+    setError('');
+    setShowNotification(false);
+  };
+
   const {
     handleSubmit,
     control,
@@ -54,6 +69,13 @@ export default function VerifyUserPage() {
 
   return (
     <Unauthenticated>
+      <Notification
+        message={error}
+        title="Ha ocurrido un error"
+        type="error"
+        open={showNotification}
+        onClose={() => handleOnClose()}
+      />
       <div className="container flex items-center justify-center flex-1 mx-auto">
         <div className="my-6 mx-4 sm:w-[409px]">
           <Card>
@@ -135,6 +157,15 @@ export default function VerifyUserPage() {
                   </FormGroup>
                 </div>
               </form>
+              <div className="flex flex-col gap-6 m-2">
+                <div className="text-center">
+                  <Link to="/login">
+                    <span className="cursor-pointer text-secondary-500">
+                      Ya tengo cuenta
+                    </span>
+                  </Link>
+                </div>
+              </div>
             </div>
           </Card>
         </div>
