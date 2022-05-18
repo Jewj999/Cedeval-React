@@ -36,6 +36,11 @@ export const useAuth = ({
   const [userState, setUserState] = useRecoilState(userAtom);
 
   const validateUserInfo = async (url: string) => {
+    if (localStorage.getItem('accepting_terms') === 'true') {
+      navigate('accept-terms');
+      return;
+    }
+
     const {
       data: { response },
     } = await axios.post<GetInformationLogin>(url, {
@@ -46,6 +51,12 @@ export const useAuth = ({
         },
       },
     });
+
+    if (response.errorCode === '12') {
+      localStorage.setItem('accepting_terms', 'true');
+      navigate('accept-terms');
+      return;
+    }
 
     if (response.errorCode !== '0' && response.errorCode !== '7') {
       setError(response.errorMessage ?? '');
@@ -66,6 +77,16 @@ export const useAuth = ({
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
+
+  const getTerms = () => {
+    return axios.get('/vbesRest/getContrato');
+  };
+
+  const acceptTerms = (contracts: any[] = []) => {
+    return axios.post('/vbesRest/acceptContracts', {
+      lstContratosUsuario: contracts,
+    });
+  };
 
   const register = async ({
     email,
@@ -121,6 +142,25 @@ export const useAuth = ({
         }
       });
   };
+
+  // const getOauthToken = async (username: string, password: string) => {
+  //   axios
+  //     .post(
+  //       '/VbesAplication/oauth/token',
+  //       qs.stringify({
+  //         username,
+  //         password,
+  //         grant_type: 'password',
+  //       }),
+  //       {
+  //         auth: {
+  //           username: 'cliente',
+  //           password: 'password',
+  //         },
+  //       }
+  //     )
+  //     .then((response) => response.data);
+  // };
 
   const forgotPasswordValidateUser = async ({
     email = '',
@@ -282,5 +322,7 @@ export const useAuth = ({
     // resendEmailVerification,
     logout,
     signOut,
+    getTerms,
+    acceptTerms,
   };
 };

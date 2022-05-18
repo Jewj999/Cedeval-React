@@ -73,7 +73,7 @@ export const Authenticated: FC = ({ children }) => {
                 <span>Contacto</span>
               </a>
 
-              <a href="#">
+              <a href="/terms">
                 <span>Contratos de confidencialidad</span>
               </a>
             </div>
