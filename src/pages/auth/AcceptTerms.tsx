@@ -38,7 +38,10 @@ export default function AcceptTermsPage({ onlyView = false }) {
   });
 
   const handleAcceptTerms = async () => {
-    acceptTerms([terms.response.msg.contrato.bvsIdcontratos])
+    acceptTerms(
+      [terms.response.msg.contrato.bvsIdcontratos],
+      search.get('p_key') ?? ''
+    )
       .then(({ data }) => {
         if (data.response.errorCode === '0') {
           localStorage.removeItem('accepting_terms');

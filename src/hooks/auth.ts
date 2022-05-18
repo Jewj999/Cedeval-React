@@ -36,11 +36,6 @@ export const useAuth = ({
   const [userState, setUserState] = useRecoilState(userAtom);
 
   const validateUserInfo = async (url: string) => {
-    if (localStorage.getItem('accepting_terms') === 'true') {
-      navigate('accept-terms');
-      return;
-    }
-
     const {
       data: { response },
     } = await axios.post<GetInformationLogin>(url, {
@@ -52,9 +47,14 @@ export const useAuth = ({
       },
     });
 
+    if (localStorage.getItem('accepting_terms') === 'true') {
+      navigate('/accept-terms?p_key=' + response.msg.usuario.bvsIduse);
+      return;
+    }
+
     if (response.errorCode === '12') {
       localStorage.setItem('accepting_terms', 'true');
-      navigate('accept-terms');
+      navigate('/accept-terms?p_key=' + response.msg.usuario.bvsIduse);
       return;
     }
 
@@ -82,8 +82,9 @@ export const useAuth = ({
     return axios.get('/vbesRest/getContrato');
   };
 
-  const acceptTerms = (contracts: any[] = []) => {
+  const acceptTerms = (contracts: any[] = [], pKey: String) => {
     return axios.post('/vbesRest/acceptContracts', {
+      idUser: pKey,
       lstContratosUsuario: contracts,
     });
   };
