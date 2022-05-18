@@ -125,8 +125,9 @@ export const useAuth = ({
         }),
         {
           auth: {
-            username: 'cliente',
-            password: 'password',
+            username: process.env.REACT_APP_CEDEVAL_SERVICES_BASIC_USER ?? '',
+            password:
+              process.env.REACT_APP_CEDEVAL_SERVICES_BASIC_PASSWORD ?? '',
           },
         }
       )
@@ -142,25 +143,6 @@ export const useAuth = ({
         }
       });
   };
-
-  // const getOauthToken = async (username: string, password: string) => {
-  //   axios
-  //     .post(
-  //       '/VbesAplication/oauth/token',
-  //       qs.stringify({
-  //         username,
-  //         password,
-  //         grant_type: 'password',
-  //       }),
-  //       {
-  //         auth: {
-  //           username: 'cliente',
-  //           password: 'password',
-  //         },
-  //       }
-  //     )
-  //     .then((response) => response.data);
-  // };
 
   const forgotPasswordValidateUser = async ({
     email = '',
