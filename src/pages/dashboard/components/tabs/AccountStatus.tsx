@@ -87,7 +87,6 @@ const AccountStatusTab: FC = () => {
     { value: 0, label: dayjs().format('MMMM YYYY') },
     { value: 1, label: dayjs().subtract(1, 'month').format('MMMM YYYY') },
     { value: 2, label: dayjs().subtract(2, 'month').format('MMMM YYYY') },
-    { value: 3, label: dayjs().subtract(3, 'month').format('MMMM YYYY') },
   ];
 
   return (

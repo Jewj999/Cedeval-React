@@ -35,18 +35,18 @@ const ValuesInventoryTab: FC = () => {
       })
       .then((res) => {
         if (
-          res.data?.request?.errorCode !== '0' ||
-          res.data.request.msg.inventarioValores.content.lenght === 0
+          res.data?.response?.errorCode !== '0' ||
+          res.data.response.msg.inventarioValores.content.lenght === 0
         ) {
           setInventories([]);
           setIsEmpty(true);
         } else {
           setIsEmpty(false);
-          setInventories(res.data.request.msg.inventarioValores.content);
+          setInventories(res.data.response.msg.inventarioValores.content);
           setpaginator({
-            totalPages: res.data.request.msg.inventarioValores.totalPages,
-            currentPage: res.data.request.msg.inventarioValores.number,
-            totalElements: res.data.request.msg.inventarioValores.totalElements,
+            totalPages: res.data.response.msg.inventarioValores.totalPages,
+            currentPage: res.data.response.msg.inventarioValores.number,
+            totalElements: res.data.response.msg.inventarioValores.totalElements,
           });
         }
       });

@@ -36,18 +36,18 @@ const CuponExpirationTab: FC = () => {
       .then((res) => {
         if (
           res.data?.response?.errorCode !== '0' ||
-          res.data.response.msg.cupones.content.lenght === 0
+          res.data.response.msg.cupones.length === 0
         ) {
           setIsEmpty(true);
           setCouponsAccount([]);
         } else {
           setIsEmpty(false);
-          setCouponsAccount(res.data.response.msg.cupones.content);
-          setpaginator({
-            totalPages: res.data.response.msg.cupones.totalPages,
-            currentPage: res.data.response.msg.cupones.number,
-            totalElements: res.data.response.msg.cupones.totalElements,
-          });
+          setCouponsAccount(res.data.response.msg.cupones);
+          // setpaginator({
+          //   totalPages: res.data.response.msg.cupones.totalPages,
+          //   currentPage: res.data.response.msg.cupones.number,
+          //   totalElements: res.data.response.msg.cupones.totalElements,
+          // });
         }
       });
   };
@@ -89,7 +89,7 @@ const CuponExpirationTab: FC = () => {
             <div className="grid grid-cols-2 px-6 py-4 bg-neutral-700">
               <div>
                 <Text type="extra-small" className="text-neutral-500">
-                  Valor nominal
+                  Monto de anotación
                 </Text>
                 <Text type="large" className="text-secondary-500" bold>
                   {currency(currentCoupon.valor).format()}
@@ -97,7 +97,7 @@ const CuponExpirationTab: FC = () => {
               </div>
               <div>
                 <Text type="extra-small" className="text-neutral-500">
-                  Precio valor del mercado
+                  Valor
                 </Text>
                 <Text type="large" className="text-semantic-success" bold>
                   {currency(currentCoupon.valor).format()}
@@ -110,6 +110,12 @@ const CuponExpirationTab: FC = () => {
                 <Text type="small">Emisor</Text>
                 <Text type="small" bold>
                   {currentCoupon.emisor}
+                </Text>
+              </div>
+              <div className="px-6 py-4">
+                <Text type="small">Serie</Text>
+                <Text type="small" bold>
+                  {currentCoupon.emisionSerie}
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
@@ -125,7 +131,13 @@ const CuponExpirationTab: FC = () => {
                 </Text>
               </div>
               <div className="flex justify-between px-6 py-4">
-                <Text type="small">Fecha de vencimiento</Text>
+                <Text type="small">Detalle</Text>
+                <Text type="small" bold>
+                  {currentCoupon.montoAnotacion ?? '-'}
+                </Text>
+              </div>
+              <div className="flex justify-between px-6 py-4">
+                <Text type="small">Fecha de pago</Text>
                 <Text type="small" bold>
                   {dayjs(currentCoupon.fechaPago).format('DD [de] MMMM YYYY')}
                 </Text>
@@ -137,11 +149,11 @@ const CuponExpirationTab: FC = () => {
       <div className="flex flex-col gap-6">
         <div className="grid grid-cols-2">
           <div className="flex gap-2">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-2">
               <span className="text-xs font-bold text-neutral-500">
-                Consulta desde:
+                Consulta:
               </span>
-              <span className="text-xs font-bold text-neutral-500">
+              <span className="text-xs ">
                 {dayjs().format('DD [de] MMMM YYYY')} al{' '}
                 {dayjs(
                   couponsAccount[couponsAccount.length - 1]?.fechaPago
@@ -154,7 +166,7 @@ const CuponExpirationTab: FC = () => {
               Resultados:{' '}
             </span>
             <span className="text-sm text-neutral-500">
-              {paginator.totalElements ?? 0} registros
+              {couponsAccount.length ?? 0} registros
             </span>
           </div>
         </div>
