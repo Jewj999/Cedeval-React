@@ -20,6 +20,8 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.27.1",
+    "react-idle-timer": "^5.2.0",
+    "react-otp-input-rc-17": "^2.4.1-minor",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
     "recoil": "^0.7.0",
@@ -52,6 +54,7 @@
     ]
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.1",
     "autoprefixer": "^10.4.2",
     "craco-alias": "^3.0.1",
     "craco-plugin-react-hot-reload": "^0.1.0",
@@ -59,5 +62,5 @@
     "tailwindcss": "^3.0.23",
     "tsconfig-paths-webpack-plugin": "^3.5.2"
   },
-  "proxy": "http://34.136.131.246:8080/"
+  "proxy": "http://34.134.221.255:8080/"
 }

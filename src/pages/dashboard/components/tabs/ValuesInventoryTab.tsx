@@ -5,15 +5,19 @@ import { axios, currency, dayjs } from '@src/libs';
 import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
+import SearchBar from './components/SearchBar';
 
 interface FormValues {
   search: string;
 }
 
 const ValuesInventoryTab: FC = () => {
-  const { register, handleSubmit } = useForm<FormValues>();
+  const { register, handleSubmit, watch, getValues } = useForm<FormValues>();
+  const search = watch('search');
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [inventories, setInventories] = useState<any[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
+
   const [currentInventory, setCurrentInventory] = useState<any>({});
   const [account, setAccount] = useRecoilState(accountAtom);
   const [isEmpty, setIsEmpty] = useState(true);
@@ -52,10 +56,22 @@ const ValuesInventoryTab: FC = () => {
     fetchInventories();
   }, [account]);
 
+  useEffect(() => {
+    const filtered = inventories.filter((transaction) => {
+      return transaction.emision.toLowerCase().includes(search.toLowerCase());
+    });
+
+    setFilteredTransactions(filtered);
+  }, [search, inventories]);
+
   const nextPage = () => {
     if (paginator.currentPage + 1 === paginator.totalPages) return;
     fetchInventories(paginator.currentPage + 1);
   };
+
+  useEffect(() => {
+    console.log(search);
+  }, []);
   return (
     <Card>
       <Modal
@@ -127,20 +143,13 @@ const ValuesInventoryTab: FC = () => {
       <div className="flex flex-col gap-6">
         <div className="grid grid-cols-2">
           <div className="flex gap-2">
-            <div className="flex items-center">
-              <span className="text-xs font-bold text-neutral-500">
-                Consulta desde:
+            <div className="flex items-center gap-1">
+              <span className="text-[13px] font-bold text-neutral-500">
+                <b>Consulta al día: </b>
               </span>
-            </div>
-            <div className="flex items-center p-2 divide-x rounded-md outline-neutral-700 outline outline-1 text-neutral-500">
-              <div className="px-3 py-1">
-                <p className="text-xs ">Desde:</p>
-                <p className="text-sm font-bold ">Noviembre 2020</p>
-              </div>
-              <div className="px-3 py-1">
-                <p className="text-xs ">Desde:</p>
-                <p className="text-sm font-bold ">Noviembre 2020</p>
-              </div>
+              <span className="text-[13px] text-neutral-500">
+                {dayjs().format('DD [de] MMMM YYYY')}
+              </span>
             </div>
           </div>
           <div className="flex items-center justify-end gap-2">
@@ -148,7 +157,7 @@ const ValuesInventoryTab: FC = () => {
               Resultados:{' '}
             </span>
             <span className="text-sm text-neutral-500">
-              {paginator.totalElements} registros
+              {paginator.totalElements ?? 0} registros
             </span>
           </div>
         </div>
@@ -156,7 +165,8 @@ const ValuesInventoryTab: FC = () => {
         <div className="relative ">
           <div className="z-50">
             <FormGroup>
-              <FormInput {...register('search')}></FormInput>
+              <SearchBar placeholder="Buscar cuenta" {...register('search')} />
+              {/* <FormInput {...register('search')}></FormInput> */}
             </FormGroup>
           </div>
         </div>
@@ -168,7 +178,7 @@ const ValuesInventoryTab: FC = () => {
             </div>
           )}
           {!isEmpty &&
-            inventories?.map((inventory, index) => (
+            filteredTransactions?.map((inventory, index) => (
               <div
                 className="grid grid-cols-2 p-3 cursor-pointer hover:bg-neutral-100"
                 key={index}

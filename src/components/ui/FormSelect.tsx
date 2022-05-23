@@ -12,15 +12,6 @@ type InputProps = {
   options: Option[];
 };
 
-const people = [
-  { name: 'Wade Cooper' },
-  { name: 'Arlene Mccoy' },
-  { name: 'Devon Webb' },
-  { name: 'Tom Cook' },
-  { name: 'Tanya Fox' },
-  { name: 'Hellen Schmidt' },
-];
-
 export const FormSelect = (props: InputProps & UseControllerProps<any>) => {
   const {
     field: { onChange },
@@ -32,6 +23,7 @@ export const FormSelect = (props: InputProps & UseControllerProps<any>) => {
     setSelected(option);
     onChange(option.value);
   }
+  
   return (
     <Listbox value={selected} onChange={handleSelected}>
       <div className="relative mt-1">

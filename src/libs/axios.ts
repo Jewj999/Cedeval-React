@@ -6,7 +6,9 @@ export const axios = Axios.create({
       ? process.env.REACT_APP_CEDEVAL_SERVICES_URL
       : undefined,
   headers: {
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
+    Authorization: localStorage.getItem('token')
+      ? `Bearer ${localStorage.getItem('token')}`
+      : '',
     'X-Requested-With': 'XMLHttpRequest',
   },
   withCredentials: false,

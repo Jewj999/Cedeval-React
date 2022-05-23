@@ -5,15 +5,19 @@ import { axios, currency, dayjs } from '@src/libs';
 import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
+import SearchBar from './components/SearchBar';
 
 interface FormValues {
   search: string;
 }
 
 const CuponExpirationTab: FC = () => {
-  const { register, handleSubmit } = useForm<FormValues>();
+  const { register, handleSubmit, watch } = useForm<FormValues>();
+  const search = watch('search');
+
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [couponsAccount, setCouponsAccount] = useState<any[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
   const [currentCoupon, setCurrentCoupon] = useState<any>({});
   const [account, setAccount] = useRecoilState(accountAtom);
   const [isEmpty, setIsEmpty] = useState(true);
@@ -52,6 +56,16 @@ const CuponExpirationTab: FC = () => {
     if (account.cta === '') return;
     fetchCuponsAccount();
   }, [account]);
+
+  useEffect(() => {
+    const filtered = couponsAccount.filter((transaction) => {
+      return transaction.emisionCodigo
+        .toLowerCase()
+        .includes(search.toLowerCase());
+    });
+
+    setFilteredTransactions(filtered);
+  }, [search, couponsAccount]);
 
   const nextPage = () => {
     if (paginator.currentPage + 1 === paginator.totalPages) return;
@@ -127,16 +141,12 @@ const CuponExpirationTab: FC = () => {
               <span className="text-xs font-bold text-neutral-500">
                 Consulta desde:
               </span>
-            </div>
-            <div className="flex items-center p-2 divide-x rounded-md outline-neutral-700 outline outline-1 text-neutral-500">
-              <div className="px-3 py-1">
-                <p className="text-xs ">Desde:</p>
-                <p className="text-sm font-bold ">Noviembre 2020</p>
-              </div>
-              <div className="px-3 py-1">
-                <p className="text-xs ">Desde:</p>
-                <p className="text-sm font-bold ">Noviembre 2020</p>
-              </div>
+              <span className="text-xs font-bold text-neutral-500">
+                {dayjs().format('DD [de] MMMM YYYY')} al{' '}
+                {dayjs(
+                  couponsAccount[couponsAccount.length - 1]?.fechaPago
+                ).format('DD [de] MMMM YYYY')}
+              </span>
             </div>
           </div>
           <div className="flex items-center justify-end gap-2">
@@ -144,7 +154,7 @@ const CuponExpirationTab: FC = () => {
               Resultados:{' '}
             </span>
             <span className="text-sm text-neutral-500">
-              {paginator.totalElements} registros
+              {paginator.totalElements ?? 0} registros
             </span>
           </div>
         </div>
@@ -152,7 +162,7 @@ const CuponExpirationTab: FC = () => {
         <div className="relative ">
           <div className="z-50">
             <FormGroup>
-              <FormInput {...register('search')}></FormInput>
+              <SearchBar placeholder="Buscar cuenta" {...register('search')} />
             </FormGroup>
           </div>
           {/* <div className="absolute top-0 z-10 flex items-center justify-start w-full h-full">
@@ -168,7 +178,7 @@ const CuponExpirationTab: FC = () => {
           )}
 
           {!isEmpty &&
-            couponsAccount.map((coupon, index) => (
+            filteredTransactions.map((coupon, index) => (
               <div
                 className="grid grid-cols-2 p-3 cursor-pointer hover:bg-neutral-100"
                 key={index}

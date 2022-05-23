@@ -1,5 +1,12 @@
 import { accountAtom } from '@src/atoms/account';
-import { Card, FormGroup, FormInput, Modal, Text } from '@src/components';
+import {
+  Card,
+  FormGroup,
+  FormInput,
+  FormSelect,
+  Modal,
+  Text,
+} from '@src/components';
 import { EmptyState } from '@src/components/ui/EmptyState';
 import AccountContext from '@src/context/AccountContext';
 import { useAccount } from '@src/hooks/account';
@@ -7,14 +14,21 @@ import { axios, currency, dayjs } from '@src/libs';
 import { FC, FunctionComponent, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
+import SearchBar from './components/SearchBar';
+import SelectBar from './components/SelectBar';
 
 interface FormValues {
-  search: string;
+  month: Number;
+  search: String;
 }
 const AccountStatusTab: FC = () => {
-  const { register, handleSubmit } = useForm<FormValues>();
+  const { register, handleSubmit, control, watch } = useForm<FormValues>();
+  const month = watch('month');
+  const search = watch('search');
+
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
   const [currentTransaction, setCurrentTransaction] = useState<any>({});
   const [isEmpty, setIsEmpty] = useState(true);
   const [account, setAccount] = useRecoilState(accountAtom);
@@ -28,7 +42,7 @@ const AccountStatusTab: FC = () => {
             cte: account.cte,
             cta: account.cta,
             tcta: account.tcta,
-            mes: 0,
+            mes: month ?? 0,
           },
         },
       })
@@ -50,16 +64,31 @@ const AccountStatusTab: FC = () => {
         }
       });
   };
-  
+
   useEffect(() => {
     if (account.cta === '') return;
     fetchAccountSummary();
-  }, [account]);
+  }, [account, month]);
+
+  useEffect(() => {
+    const filtered = transactions.filter((transaction) => {
+      return transaction.emision.toLowerCase().includes(search.toLowerCase());
+    });
+
+    setFilteredTransactions(filtered);
+  }, [search, transactions]);
 
   const nextPage = () => {
     if (paginator.currentPage + 1 === paginator.totalPages) return;
     fetchAccountSummary(paginator.currentPage + 1);
   };
+
+  const months = [
+    { value: 0, label: dayjs().format('MMMM YYYY') },
+    { value: 1, label: dayjs().subtract(1, 'month').format('MMMM YYYY') },
+    { value: 2, label: dayjs().subtract(2, 'month').format('MMMM YYYY') },
+    { value: 3, label: dayjs().subtract(3, 'month').format('MMMM YYYY') },
+  ];
 
   return (
     <Card>
@@ -138,27 +167,23 @@ const AccountStatusTab: FC = () => {
         <div className="grid grid-cols-2">
           <div className="flex gap-2">
             <div className="flex items-center">
-              <span className="text-xs font-bold text-neutral-500">
+              <span className="text-[13px] font-bold text-neutral-500">
                 Consulta desde:
               </span>
             </div>
-            <div className="flex items-center p-2 divide-x rounded-md outline-neutral-700 outline outline-1 text-neutral-500">
-              <div className="px-3 py-1">
-                <p className="text-xs ">Desde:</p>
-                <p className="text-sm font-bold ">Noviembre 2020</p>
-              </div>
-              <div className="px-3 py-1">
-                <p className="text-xs ">Desde:</p>
-                <p className="text-sm font-bold ">Noviembre 2020</p>
-              </div>
-            </div>
+            <SelectBar
+              options={months}
+              control={control}
+              name="month"
+              rules={{ required: true }}
+            ></SelectBar>
           </div>
           <div className="flex items-center justify-end gap-2">
             <span className="text-sm font-bold text-neutral-500">
               Resultados:{' '}
             </span>
             <span className="text-sm text-neutral-500">
-              {paginator.totalElements} registros
+              {paginator.totalElements ?? 0} registros
             </span>
           </div>
         </div>
@@ -166,12 +191,10 @@ const AccountStatusTab: FC = () => {
         <div className="relative ">
           <div className="z-50">
             <FormGroup>
-              <FormInput {...register('search')}></FormInput>
+              <SearchBar placeholder="Buscar cuenta" {...register('search')} />
+              {/* <FormInput {...register('search')}></FormInput> */}
             </FormGroup>
           </div>
-          {/* <div className="absolute top-0 z-10 flex items-center justify-start w-full h-full">
-          <span className="mt-1 ml-2 material-icons top-4">search</span>
-        </div> */}
         </div>
 
         <div className="flex flex-col divide-y">
@@ -181,7 +204,7 @@ const AccountStatusTab: FC = () => {
             </div>
           )}
           {!isEmpty &&
-            transactions.map((transaction) => (
+            filteredTransactions.map((transaction) => (
               <div
                 className="grid grid-cols-3 p-3 cursor-pointer hover:bg-neutral-100"
                 key={`${transaction.titulo}-${transaction.folio}`}

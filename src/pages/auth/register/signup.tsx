@@ -7,9 +7,10 @@ import {
   FormSelect,
   Unauthenticated,
 } from '@src/components';
+import Notification from '@src/components/ui/Notification';
 import { useAuth } from '@src/hooks';
 import { RegisterForm } from '@src/interfaces';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -26,6 +27,7 @@ const options: Option[] = [
 
 const SignupPage: FC = () => {
   const [error, setError] = useState('');
+  const [showNotification, setShowNotification] = useState(false);
 
   const navigate = useNavigate();
   const { register: signup } = useAuth({
@@ -56,8 +58,26 @@ const SignupPage: FC = () => {
   const documentValueState = getFieldState('document_value');
   const emailState = getFieldState('email');
 
+  useEffect(() => {
+    if (error !== '') {
+      setShowNotification(true);
+    }
+  }, [error]);
+  
+  const handleOnClose = () => {
+    setError('');
+    setShowNotification(false);
+  };
+
   return (
     <Unauthenticated>
+      <Notification
+        message={error}
+        title="Ha ocurrido un error"
+        type="error"
+        open={showNotification}
+        onClose={() => handleOnClose()}
+      />
       <div className="container flex items-center justify-center flex-1 mx-auto">
         <div className="my-6 mx-4 sm:w-[409px]">
           <Card>

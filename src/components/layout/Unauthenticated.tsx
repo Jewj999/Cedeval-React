@@ -1,22 +1,6 @@
 import { Logo } from '@components';
-import { FC, FunctionComponent } from 'react';
+import { FC } from 'react';
 import { Link } from 'react-router-dom';
-
-const HeaderLink: FunctionComponent<LinkProps> = ({ label, link }) => {
-  return (
-    <Link
-      to={link}
-      className="flex items-center justify-center p-4 hover:bg-neutral-100"
-    >
-      <span className="text-sm font-bold text-neutral-500">{label}</span>
-    </Link>
-  );
-};
-
-type LinkProps = {
-  label: string;
-  link: string;
-};
 
 export const Unauthenticated: FC = ({ children }) => {
   return (
@@ -29,7 +13,16 @@ export const Unauthenticated: FC = ({ children }) => {
             </div>
           </div>
           <div className="flex justify-end col-span-4 lg:gap-6 lg:col-span-1">
-            <HeaderLink link="#" label="Preguntas frecuentes"></HeaderLink>
+            <a
+              rel="noopener noreferrer"
+              href="https://www.cedeval.com/preguntas-frecuentes/"
+              target="_blank"
+              className="flex items-center justify-center p-4 hover:bg-neutral-100"
+            >
+              <span className="text-sm font-bold text-neutral-500">
+                Preguntas frecuentes
+              </span>
+            </a>
           </div>
         </div>
       </header>
@@ -48,12 +41,17 @@ export const Unauthenticated: FC = ({ children }) => {
           <hr className="border-[#AAAEB8]" />
           <div className="grid grid-cols-2 gap-10">
             <div className="flex justify-around gap-4 text-sm font-bold tracking-wide">
-              <Link to="#">
-                <span>Contáctanos</span>
-              </Link>
-              <Link to="#">
+              <a
+                rel="noopener noreferrer"
+                href="https://www.cedeval.com/contacto/"
+                target="_blank"
+              >
+                <span>Contacto</span>
+              </a>
+
+              <a href='/terms'>
                 <span>Contratos de confidencialidad</span>
-              </Link>
+              </a>
             </div>
             <div>
               <p className="text-xs tracking-wide text-center">
