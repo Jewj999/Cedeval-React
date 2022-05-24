@@ -207,7 +207,7 @@ const CuponExpirationTab: FC = () => {
                 </div>
                 <div className="flex justify-end gap-2">
                   <div className="flex flex-col justify-center">
-                    <p className="text-xs text-neutral-600">Valor nominal</p>
+                    <p className="text-xs text-neutral-600">Monto de anotación</p>
                     <p className="text-lg font-bold text-secondary-500">
                       {currency(coupon.valor).format()}
                     </p>
