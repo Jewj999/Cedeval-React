@@ -65,7 +65,10 @@ const InventoryStockTab: FC = () => {
 
   useEffect(() => {
     const filtered = inventories.filter((transaction) => {
-      return transaction.emision.toLowerCase().includes(search.toLowerCase());
+      return (
+        transaction.emision.toLowerCase().includes(search.toLowerCase()) ||
+        transaction.nombreEmisor.toLowerCase().includes(search.toLowerCase())
+      );
     });
 
     setFilteredTransactions(filtered);

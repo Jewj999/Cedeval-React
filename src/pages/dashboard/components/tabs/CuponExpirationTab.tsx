@@ -59,9 +59,12 @@ const CuponExpirationTab: FC = () => {
 
   useEffect(() => {
     const filtered = couponsAccount.filter((transaction) => {
-      return transaction.emisionCodigo
-        .toLowerCase()
-        .includes(search.toLowerCase());
+      return (
+        transaction.emisionCodigo
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        transaction.emisor.toLowerCase().includes(search.toLowerCase())
+      );
     });
 
     setFilteredTransactions(filtered);

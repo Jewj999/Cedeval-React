@@ -1,5 +1,5 @@
 import { Card, Modal, Text } from '@src/components';
-import { axios } from '@src/libs';
+import { axios, dayjs } from '@src/libs';
 import { FC, FunctionComponent, useEffect, useState } from 'react';
 
 const BeneficiarySection: FC<{ account: any }> = ({ account }) => {
@@ -44,12 +44,11 @@ const BeneficiarySection: FC<{ account: any }> = ({ account }) => {
             </div>
 
             <div className="px-6 py-4 bg-secondary-500 text-neutral-0">
-              <Text type="small">{currentBeneficiary.represen}</Text>
+              <Text type="small">{currentBeneficiary.parentesco}</Text>
               <Text type="large" bold>
                 {currentBeneficiary.nombre}
               </Text>
             </div>
-
             <div className="flex flex-col divide-y text-neutral-500 place-content-center">
               <div className="px-6 py-4">
                 <Text type="extra-small">Tipo de documento</Text>
@@ -85,7 +84,7 @@ const BeneficiarySection: FC<{ account: any }> = ({ account }) => {
             Beneficiarios de la cuenta
           </p>
           <p className="text-sm text-neutral-500">
-            Consulta al: 19 de abril de 2021
+            Consulta al: {dayjs(new Date()).format('DD [de] MMMM YYYY')}
           </p>
         </div>
         {beneficiaries.map((beneficiary, index) => (
@@ -99,7 +98,10 @@ const BeneficiarySection: FC<{ account: any }> = ({ account }) => {
           >
             <div className="flex-auto ">
               <p className="text-sm text-neutral-500">{beneficiary.nombre}</p>
-              <p className="text-xs text-neutral-600">{beneficiary.represen}</p>
+              <p className="text-xs text-neutral-600">
+                {' '}
+                Parentesco: {beneficiary.parentesco}
+              </p>
             </div>
             <div className="flex items-center justify-center">
               <button className="flex">

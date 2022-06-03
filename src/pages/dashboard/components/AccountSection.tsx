@@ -3,6 +3,7 @@ import { accountAtom } from '@src/atoms/account';
 import { userAtom } from '@src/atoms/user';
 import { AccountImage, Card } from '@src/components';
 import Icon from '@src/components/ui/Icon';
+import Notification from '@src/components/ui/Notification';
 import AccountContext from '@src/context/AccountContext';
 import { useAuth } from '@src/hooks';
 import { useAccount } from '@src/hooks/account';
@@ -35,6 +36,7 @@ const AccountBodyItem: FunctionComponent<AccountBodyItemProps> = ({
 const AccountSection: FunctionComponent<{ account: any }> = () => {
   const [userState, setUserState] = useRecoilState(userAtom);
   const [account, setAccount] = useRecoilState(accountAtom);
+  const [showNotification, setShowNotification] = useState(false);
 
   const [houses, setHouses] = useState<Record<string, any>>({});
   useEffect(() => {
@@ -49,8 +51,26 @@ const AccountSection: FunctionComponent<{ account: any }> = () => {
     }
   }, [userState]);
 
+  const handleOnClose = () => {
+    setShowNotification(false);
+  };
+
+  const handleAccountChange = (item: any) => {
+    setAccount(item);
+    setShowNotification(true);
+    setTimeout(() => {
+      setShowNotification(false);
+    }, 2000);
+  };
   return (
     <Card>
+      <Notification
+        message="Se ha cambiado la cuenta"
+        title="Cambio de cuenta"
+        type="success"
+        open={showNotification}
+        onClose={() => handleOnClose()}
+      />
       <div className="flex flex-col -m-3 divide-y">
         <Menu as="div" className="relative inline-block text-left">
           <Menu.Button className="w-full p-4 text-sm font-medium rounded-md bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
@@ -127,7 +147,7 @@ const AccountSection: FunctionComponent<{ account: any }> = () => {
                                           key={index}
                                           className="flex items-center w-full p-2 transition duration-150 ease-in-out rounded-lg hover:bg-secondary-500 hover:text-white focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
                                           onClick={() => {
-                                            setAccount(item);
+                                            handleAccountChange(item);
                                           }}
                                         >
                                           {/* <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 text-white sm:h-12 sm:w-12">
