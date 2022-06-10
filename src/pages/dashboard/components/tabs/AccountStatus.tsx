@@ -36,7 +36,7 @@ const AccountStatusTab: FC = () => {
 
   const fetchAccountSummary = async (page?: number) => {
     axios
-      .post('/vbesRest/getAccountSummary', {
+      .post(`/vbesRest/getAccountSummary?page=${page ?? 0}`, {
         request: {
           msg: {
             cte: account.cte,
@@ -72,7 +72,7 @@ const AccountStatusTab: FC = () => {
 
   useEffect(() => {
     const filtered = transactions.filter((transaction) => {
-      return transaction.emision.toLowerCase().includes(search.toLowerCase()) || transaction.emisor.toLowerCase().includes(search.toLowerCase());
+      return transaction.emision?.toLowerCase().includes(search?.toLowerCase()) || transaction.emisor?.toLowerCase().includes(search?.toLowerCase());
     });
 
     setFilteredTransactions(filtered);

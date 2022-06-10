@@ -5,6 +5,7 @@ import { useAuth } from '@src/hooks';
 import { UserAvatar } from '../ui/UserAvatar';
 import { useIdleTimer } from 'react-idle-timer';
 
+
 export const Authenticated: FC = ({ children }) => {
   const { isIdle } = useIdleTimer({
     onIdle: () => _handleIdle(),

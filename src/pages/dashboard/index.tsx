@@ -6,13 +6,17 @@ import AccountStatusTab from './components/tabs/AccountStatus';
 import CuponExpirationTab from './components/tabs/CuponExpirationTab';
 import InventoryStockTab from './components/tabs/InventoryStockTab';
 import Sidebar from './components/Sidebar';
-import { axios } from '@src/libs';
+import { axios, dayjs } from '@src/libs';
+import { userAtom } from '@src/atoms/user';
+import { useRecoilState } from 'recoil';
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ');
 }
 
 const DashboardPage: FC = () => {
+  const [user] = useRecoilState(userAtom);
+
   const [actualAccount, setActualAccount] = useState<any>({});
 
   const [tabMenu] = useState([
@@ -37,10 +41,14 @@ const DashboardPage: FC = () => {
         <div>
           <h2 className="text-primary">Consulta en linea</h2>
           <p className="text-sm text-neutral-500 roun">
-            Última conexión: 19 de abril de 2021
+            <span>Última conexión:</span>{' '}
+            <span className="font-bold">
+              {dayjs(user.lastSession.bvsFechaInicioSesion).format(
+                'DD [de] MMMM YYYY'
+              )}
+            </span>
           </p>
         </div>
-
         {/* Body */}
         <div className="grid grid-cols-3 gap-4">
           {/* Main content */}

@@ -1,12 +1,15 @@
 import { Card, Modal, Text } from '@src/components';
 import { axios, dayjs } from '@src/libs';
 import { FC, FunctionComponent, useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { userAtom } from '@src/atoms/user';
 
 const BeneficiarySection: FC<{ account: any }> = ({ account }) => {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [beneficiaries, setBeneficiaries] = useState<any[]>([]);
   const [isEmpty, setIsEmpty] = useState(false);
   const [currentBeneficiary, setCurrentBeneficiary] = useState<any>({});
+  const [userState, setUserState] = useRecoilState(userAtom);
 
   useEffect(() => {
     axios
@@ -86,6 +89,14 @@ const BeneficiarySection: FC<{ account: any }> = ({ account }) => {
           <p className="text-sm text-neutral-500">
             Consulta al: {dayjs(new Date()).format('DD [de] MMMM YYYY')}
           </p>
+        </div>
+        <div className="flex p-3 ">
+          <div className="flex-auto ">
+            <p className="text-sm text-neutral-500">
+              {userState.usuario.bvsNombre}
+            </p>
+            <p className="text-xs text-neutral-600">Titular de la cuenta</p>
+          </div>
         </div>
         {beneficiaries.map((beneficiary, index) => (
           <div

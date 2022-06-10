@@ -62,5 +62,5 @@
     "tailwindcss": "^3.0.23",
     "tsconfig-paths-webpack-plugin": "^3.5.2"
   },
-  "proxy": "http://34.134.221.255:8080/"
+  "proxy": "http://34.136.131.246:8080/"
 }

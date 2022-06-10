@@ -14,6 +14,7 @@ export const userAtom = atom({
       bvsTelefono: '',
       bvsStatusSession: false,
       bvsIntentoSesion: false,
+      bvsAcceptContract: 0,
     },
     casas: [],
     sesionActiva: {

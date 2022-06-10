@@ -47,13 +47,7 @@ export const useAuth = ({
       },
     });
 
-    if (localStorage.getItem('accepting_terms') === 'true') {
-      navigate('/accept-terms?p_key=' + response.msg.usuario.bvsIduse);
-      return;
-    }
-
-    if (response.errorCode === '12') {
-      localStorage.setItem('accepting_terms', 'true');
+    if ( response.msg.usuario.bvsAcceptContract == 0) {
       navigate('/accept-terms?p_key=' + response.msg.usuario.bvsIduse);
       return;
     }
@@ -132,12 +126,12 @@ export const useAuth = ({
           },
         }
       )
-      .then((response) => {
+      .then(async (response) => {
         localStorage.setItem('token', response.data.access_token);
         localStorage.setItem('email', username);
         axios.defaults.headers.common.Authorization = `Bearer ${response.data.access_token}`;
         try {
-          validateUserInfo('/vbesRest/getInformationLogin');
+          await validateUserInfo('/vbesRest/getInformationLogin');
           navigate('/dashboard');
         } catch (err: any) {
           setError(err.message);

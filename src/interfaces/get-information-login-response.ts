@@ -15,6 +15,7 @@ export interface GetInformationLoginResponse {
     bvsTelefono: string;
     bvsStatusSession: boolean;
     bvsIntentoSesion: boolean;
+    bvsAcceptContract: string | number;
   };
   casas: {
     tmvCodcas: string;

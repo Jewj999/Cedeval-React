@@ -44,7 +44,6 @@ export default function AcceptTermsPage({ onlyView = false }) {
     )
       .then(({ data }) => {
         if (data.response.errorCode === '0') {
-          localStorage.removeItem('accepting_terms');
           navigate('/dashboard');
         } else {
           setError(data.response.errorMessage);
