@@ -35,19 +35,32 @@ export const useAuth = ({
   const navigate = useNavigate();
   const [userState, setUserState] = useRecoilState(userAtom);
 
-  const validateUserInfo = async (url: string) => {
+  const validateUserInfo = async (url: string, token?: string) => {
+    let headers = {};
+
+    if (token) {
+      headers = {
+        Authorization: `Bearer ${token}`,
+      };
+    }
     const {
       data: { response },
-    } = await axios.post<GetInformationLogin>(url, {
-      request: {
-        msg: {
-          mail: localStorage.getItem('email'),
-          typeSession: 'Web',
+    } = await axios.post<GetInformationLogin>(
+      url,
+      {
+        request: {
+          msg: {
+            mail: localStorage.getItem('email'),
+            typeSession: 'Web',
+          },
         },
       },
-    });
+      {
+        headers: headers,
+      }
+    );
 
-    if ( response.msg.usuario.bvsAcceptContract == 0) {
+    if (response.msg.usuario.bvsAcceptContract == 0) {
       navigate('/accept-terms?p_key=' + response.msg.usuario.bvsIduse);
       return;
     }
@@ -129,13 +142,22 @@ export const useAuth = ({
       .then(async (response) => {
         localStorage.setItem('token', response.data.access_token);
         localStorage.setItem('email', username);
-        axios.defaults.headers.common.Authorization = `Bearer ${response.data.access_token}`;
+        axios.defaults.headers.common[
+          'Authorization'
+        ] = `Bearer ${response.data.access_token}`;
+
         try {
-          await validateUserInfo('/vbesRest/getInformationLogin');
+          await validateUserInfo(
+            '/vbesRest/getInformationLogin',
+            response.data.access_token
+          );
           navigate('/dashboard');
         } catch (err: any) {
           setError(err.message);
         }
+      })
+      .catch((error) => {
+        setError(error.response.data.error_description);
       });
   };
 
