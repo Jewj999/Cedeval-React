@@ -44,7 +44,7 @@ export default function AcceptTermsPage({ onlyView = false }) {
     )
       .then(({ data }) => {
         if (data.response.errorCode === '0') {
-          navigate('/dashboard');
+          navigate('/verify-user');
         } else {
           setError(data.response.errorMessage);
         }
