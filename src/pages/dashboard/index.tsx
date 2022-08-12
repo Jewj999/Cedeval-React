@@ -1,4 +1,4 @@
-import { createContext, FC, useEffect, useState } from 'react';
+import {FC, useState } from 'react';
 import { Tab } from '@headlessui/react';
 import { Authenticated } from '@src/components';
 import ValuesInventoryTab from './components/tabs/ValuesInventoryTab';
@@ -6,7 +6,7 @@ import AccountStatusTab from './components/tabs/AccountStatus';
 import CuponExpirationTab from './components/tabs/CuponExpirationTab';
 import InventoryStockTab from './components/tabs/InventoryStockTab';
 import Sidebar from './components/Sidebar';
-import { axios, dayjs } from '@src/libs';
+import { dayjs } from '@src/libs';
 import { userAtom } from '@src/atoms/user';
 import { useRecoilState } from 'recoil';
 
@@ -78,8 +78,6 @@ const DashboardPage: FC = () => {
                     ))}
                   </Tab.List>
                 </div>
-
-                {/* Content */}
                 <Tab.Panels className="">
                   <Tab.Panel>
                     <ValuesInventoryTab />

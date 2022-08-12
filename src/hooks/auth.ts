@@ -9,10 +9,8 @@ import {
 import { axios } from '@src/libs';
 import qs from 'qs';
 import {
-  createContext,
   Dispatch,
   SetStateAction,
-  useContext,
   useEffect,
 } from 'react';
 import { Router, useNavigate } from 'react-router-dom';
@@ -60,7 +58,7 @@ export const useAuth = ({
       }
     );
 
-    if (response.msg.usuario.bvsAcceptContract == 0) {
+    if (response.msg.usuario.bvsAcceptContract === 0) {
       navigate('/accept-terms?p_key=' + response.msg.usuario.bvsIduse);
       return;
     }
@@ -77,7 +75,6 @@ export const useAuth = ({
   const {
     data: user,
     error,
-    mutate,
   } = useSWR('/vbesRest/getInformationLogin', validateUserInfo, {
     shouldRetryOnError: true,
     revalidateIfStale: false,
@@ -188,13 +185,6 @@ export const useAuth = ({
         data: { access_token },
       } = await getTokenForgotPassword();
 
-      const { data } = await sendTokenForgotPassword(access_token, {
-        email: email,
-        description: 'Solicitud de token para recuperar contraseña',
-        codCanal: 'CANAL_WEB',
-        tipo: 1,
-      });
-
       navigate('/verify-token?email=' + email);
     }
   };
@@ -219,20 +209,6 @@ export const useAuth = ({
         },
       }
     );
-  };
-
-  const sendTokenForgotPassword = async (token: string, body: {}) => {
-    return Axios.create({
-      baseURL: process.env.REACT_APP_CEDEVAL_SECURITY_SERVICES_URL,
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-    }).post('/vbesSecurity/generateToken', body, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-    });
   };
 
   const resetPassword = async ({
