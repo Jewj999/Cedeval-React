@@ -1,4 +1,4 @@
-import { Menu, Popover, Transition } from '@headlessui/react';
+import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import { accountAtom } from '@src/atoms/account';
 import { userAtom } from '@src/atoms/user';
