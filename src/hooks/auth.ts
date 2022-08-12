@@ -67,7 +67,7 @@ export const useAuth = ({
       setError(response.errorMessage ?? '');
       throw new Error(response.errorMessage);
     } else {
-      setUserState(response.msg);
+      // setUserState(response.msg);
       return response.msg;
     }
   };
