@@ -1,6 +1,4 @@
-import { userAtom } from '@src/atoms/user';
 import { FC } from 'react';
-import { useRecoilState } from 'recoil';
 import AccountSection from './AccountSection';
 import BeneficiarySection from './BeneficiarySection';
 
