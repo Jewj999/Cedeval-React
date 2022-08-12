@@ -1,15 +1,14 @@
 import { Card, Modal, Text } from '@src/components';
 import { axios, dayjs } from '@src/libs';
-import { FC, FunctionComponent, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { userAtom } from '@src/atoms/user';
 
 const BeneficiarySection: FC<{ account: any }> = ({ account }) => {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [beneficiaries, setBeneficiaries] = useState<any[]>([]);
-  const [isEmpty, setIsEmpty] = useState(false);
   const [currentBeneficiary, setCurrentBeneficiary] = useState<any>({});
-  const [userState, setUserState] = useRecoilState(userAtom);
+  const [userState] = useRecoilState(userAtom);
 
   useEffect(() => {
     axios
@@ -24,7 +23,6 @@ const BeneficiarySection: FC<{ account: any }> = ({ account }) => {
       })
       .then((res) => {
         if (res.data.response.errorCode !== '0') {
-          setIsEmpty(true);
         } else {
           setBeneficiaries(res.data.response.msg.beneficiarios.content);
         }
