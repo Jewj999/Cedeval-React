@@ -1,4 +1,4 @@
-import { FC, FunctionComponent, ReactNode } from 'react';
+import { FC, ReactNode } from 'react';
 
 export const Button: FC<ButtonProps> = ({
   style = 'primary',
